@@ -4,10 +4,8 @@ const { verifyAdmin } = require('../middlewares/verifyAdmin');
 const { verifyToken } = require('../middlewares/verifyToken'); 
 // Middleware to verify JWT
 const router = express.Router();
-
 // Admin register route
 router.post('/register-admin', authController.registerAdmin); // Admin self-registration
-
 // User registration route (admin only)
 router.post('/register', verifyAdmin, authController.registerUser); // Admin registers other users
 

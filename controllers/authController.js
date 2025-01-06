@@ -191,17 +191,13 @@ exports.verifyOtp = async (req, res) => {
           'Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number.',
       });
     }
-
     // Hash the new password
     user.password = await bcrypt.hash(newPassword, 10);
-
     // Clear OTP fields after successful verification
     user.otp = undefined;
     user.otpExpiry = undefined;
-
     // Save the new password in the database
     await user.save();
-
     res.status(200).json({ message: 'Password reset successful.' });
   } catch (error) {
     res.status(500).json({ message: 'Error resetting password.', error });
