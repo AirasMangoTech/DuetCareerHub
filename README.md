@@ -156,6 +156,13 @@
 - **Endpoint:** `GET /admin/all`
 - **Description:** Retrieve all User 
 
+
+### Get All Users
+- **Endpoint:** `GET /api/users`
+- **Description:** Retrieve all users.
+- **Response:**
+    - **200 OK:** List of users.
+    - **400 Bad Request:** Error message.
         ### Get User by ID
         - **Endpoint:** `GET /user/:id`
         - **Description:** Retrieve a user by their ID.

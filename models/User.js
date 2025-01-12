@@ -19,7 +19,10 @@ const userSchema = new mongoose.Schema({
     required: true
   },
   profilePicture: String,
-  resume: String,
+  resume: {
+    data: Buffer,
+    contentType: String
+  },
   portfolioURL: String,
   socialLinks: {
     linkedIn: String,

@@ -1,7 +1,6 @@
 const Report = require('../models/Report');
 const User = require('../models/User');
-const express = require('express');
-const reportController = require('../controllers/reportController');
+
 // Create Report
 exports.createReport = async (req, res) => {
   try {
@@ -13,6 +12,7 @@ exports.createReport = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 // Get All Reports
 exports.getReports = async (req, res) => {
   try {
@@ -22,6 +22,7 @@ exports.getReports = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 // Suspend User
 exports.suspendUser = async (req, res) => {
   try {
@@ -32,7 +33,7 @@ exports.suspendUser = async (req, res) => {
     const user = await User.findById(report.userId);
     if (!user) return res.status(404).json({ message: "User not found!" });
 
-    // Suspend user logic (e.g., setting a suspended flag or similar)
+    // Suspend user logic
     user.suspended = true;
     await user.save();
 
@@ -44,25 +45,26 @@ exports.suspendUser = async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 };
+
 // Unsuspend User
 exports.unsuspendUser = async (req, res) => {
-    try {
-        const { reportId } = req.params;
-        const report = await Report.findById(reportId);
-        if (!report) return res.status(404).json({ message: "Report not found!" });
+  try {
+    const { reportId } = req.params;
+    const report = await Report.findById(reportId);
+    if (!report) return res.status(404).json({ message: "Report not found!" });
 
-        const user = await User.findById(report.userId);
-        if (!user) return res.status(404).json({ message: "User not found!" });
+    const user = await User.findById(report.userId);
+    if (!user) return res.status(404).json({ message: "User not found!" });
 
-        // Unsuspend user logic (e.g., removing the suspended flag or similar)
-        user.suspended = false;
-        await user.save();
+    // Unsuspend user logic
+    user.suspended = false;
+    await user.save();
 
-        report.status = 'active';
-        await report.save();
+    report.status = 'unsuspended';
+    await report.save();
 
-        res.status(200).json({ message: "User unsuspended successfully!" });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }
+    res.status(200).json({ message: "User unsuspended successfully!" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 };

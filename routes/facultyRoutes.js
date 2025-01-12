@@ -1,34 +1,33 @@
 const express = require('express');
 const { body } = require('express-validator');
 const router = express.Router();
-const userController = require('../controllers/userController');
+const facultyController = require('../controllers/facultyController');
 
-// Create User (Register)
-router.post('/create', userController.uploadResume, [
+// Create Faculty (Register)
+router.post('/create', [
   body('name').notEmpty().withMessage('Name is required'),
-  body('lastName').notEmpty().withMessage('Last Name is required'),
+  body('lastname').notEmpty().withMessage('Last Name is required'),
   body('department').notEmpty().withMessage('Department is required'),
-  body('rollNumber').notEmpty().withMessage('Roll Number is required'),
-  body('cgpa').notEmpty().withMessage('CGPA is required'),
+  body('designation').notEmpty().withMessage('Designation is required'),
+  body('qualification').notEmpty().withMessage('Qualification is required'),
   body('contactNumber').notEmpty().withMessage('Contact Number is required'),
-  body('programYear').notEmpty().withMessage('Program/Year is required'),
   body('email').isEmail().withMessage('Invalid email format'),
   body('password').isLength({ min: 10 }).withMessage('Password must be at least 10 characters long')
     .matches(/[A-Z]/).withMessage('Password must contain at least one uppercase letter')
     .matches(/[a-z]/).withMessage('Password must contain at least one lowercase letter')
     .matches(/[0-9]/).withMessage('Password must contain at least one number')
-], userController.createUser);
+], facultyController.createFaculty);
 
-// Get All Users
-router.get('/all', userController.getAllUsers);
+// Get All Faculties
+router.get('/all', facultyController.getAllFaculties);
 
-// Read User (Get Profile by ID)
-router.get('/:id', userController.getUser);
+// Get Faculty by ID
+router.get('/:id', facultyController.getFaculty);
 
-// Update User (Edit Profile)
-router.put('/:id', userController.updateUser);
+// Update Faculty
+router.put('/:id', facultyController.updateFaculty);
 
-// Delete User
-router.delete('/:id', userController.deleteUser);
+// Delete Faculty
+router.delete('/:id', facultyController.deleteFaculty);
 
 module.exports = router;

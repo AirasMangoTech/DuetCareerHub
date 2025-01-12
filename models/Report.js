@@ -9,7 +9,7 @@ const reportSchema = new mongoose.Schema({
   message: String,
   status: {
     type: String,
-    enum: ['pending', 'resolved', 'suspended'],
+    enum: ['pending', 'unsuspended', 'suspended'],
     default: 'pending'
   }
 }, { timestamps: true });
