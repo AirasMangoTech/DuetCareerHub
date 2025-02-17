@@ -30,8 +30,19 @@ const userSchema = new mongoose.Schema({
   },
   achievements: [String],
   skills: [String],
-  certifications: [String]
+  certifications: [String],
+  otp: {
+    type: String,
+    required: false
+  },
+  otpExpires: {
+    type: Date,
+    required: false
+  },
+  role: { type: String, default: 'user' }
 }, { timestamps: true });
+
+
 
 userSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();

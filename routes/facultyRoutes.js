@@ -18,7 +18,7 @@ router.post('/create', [
     .matches(/[0-9]/).withMessage('Password must contain at least one number')
 ], facultyController.createFaculty);
 
-// Get All Faculties
+// Get All Facultiesx
 router.get('/all', facultyController.getAllFaculties);
 
 // Get Faculty by ID

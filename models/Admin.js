@@ -17,7 +17,17 @@ const adminSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  otp: {
+    type: String,
+    required: false
+  },
+  otpExpires: {
+    type: Date,
+    required: false
+  },
+  role: { type: String, default: 'admin' }
 }, { timestamps: true });
+
 
 adminSchema.pre('save', async function(next) {
   if (!this.isModified('password')) return next();

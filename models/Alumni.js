@@ -13,7 +13,33 @@ const alumniSchema = new mongoose.Schema({
   contactNumber: { type: String },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  role: { type: String, default: 'alumni' },
+  profilePicture: String,
+  resume: {
+    data: Buffer,
+    contentType: String
+  },
+  portfolioURL: String,
+  currentJobTitle: String,
+  companyName: String,
+  pastJobExperiences: [String],
+  skills: [String],
+  certifications: [String],
+  socialLinks: {
+    linkedIn: String,
+  },
+  achievements: [String],
+  personalizedDescription: String,
   createdAt: { type: Date, default: Date.now },
+  otp: {
+    type: String,
+    required: false
+  },
+  otpExpires: {
+    type: Date,
+    required: false
+  }
+
 });
 
 alumniSchema.pre('save', async function(next) {
