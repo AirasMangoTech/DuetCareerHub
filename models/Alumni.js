@@ -5,7 +5,7 @@ const alumniSchema = new mongoose.Schema({
   name: { type: String, required: true },
   lastname: { type: String, required: true },
   department: { type: String, required: true },
-  rollNumber: { type: String, required: true, unique: true },
+  rollNumber: { type: String, required: true},
   graduationYear: { type: Number, required: true },
   degree: { type: String, required: true },
   currentJobTitle: { type: String },
@@ -20,8 +20,6 @@ const alumniSchema = new mongoose.Schema({
     contentType: String
   },
   portfolioURL: String,
-  currentJobTitle: String,
-  companyName: String,
   pastJobExperiences: [String],
   skills: [String],
   certifications: [String],
@@ -39,7 +37,6 @@ const alumniSchema = new mongoose.Schema({
     type: Date,
     required: false
   }
-
 });
 
 alumniSchema.pre('save', async function(next) {
