@@ -131,19 +131,34 @@ exports.updateAlumni = async (req, res) => {
   }
 };
 
+const mongoose = require('mongoose');
+
 // Delete Alumni
 exports.deleteAlumni = async (req, res) => {
   try {
-    const alumni = await Alumni.findByIdAndDelete(req.params.id);
+    const { id } = req.params;
+
+    // Check if ID is a valid MongoDB ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ status: false, responseCode: 400, message: "Invalid ID format" });
+    }
+
+    // Check if the alumni exists
+    const alumni = await Alumni.findById(id);
     if (!alumni) {
       return res.status(404).json({ status: false, responseCode: 404, message: "Alumni not found" });
     }
+
+    // Delete the alumni
+    await Alumni.findByIdAndDelete(id);
+
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Alumni deleted successfully!"
     });
+
   } catch (error) {
-    res.status(400).json({ status: false, responseCode: 400, message: error.message });
+    res.status(500).json({ status: false, responseCode: 500, message: error.message });
   }
 };
