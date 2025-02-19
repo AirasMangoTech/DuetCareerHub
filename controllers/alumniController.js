@@ -6,16 +6,24 @@ const bcrypt = require('bcrypt');
 exports.createAlumni = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ status: false, responseCode: 400, message: errors.array().map(error => error.msg).join(', ') });
+    return res.status(400).json({ 
+        status: false,
+        responseCode: 400, 
+        message: errors.array().map(error => error.msg).join(', ') });
   }
 
   try {
-    const { name, lastname, department, rollNumber, graduationYear, degree, currentJobTitle, companyName, contactNumber, email, password } = req.body;
+    const { 
+       name, lastname, department, rollNumber, 
+       graduationYear, degree, currentJobTitle, companyName,
+       contactNumber, email, password } = req.body;
 
     // Check if rollNumber already exists within the same department
     const existingAlumni = await Alumni.findOne({ rollNumber, department });
     if (existingAlumni) {
-      return res.status(400).json({ status: false, responseCode: 400, message: "Roll number already exists in this department, please use a different roll number." });
+      return res.status(400).json({ 
+        status: false, responseCode: 400, 
+        message: "Roll number already exists in this department, please use a different roll number." });
     }
 
     // Check if email already exists
@@ -59,29 +67,48 @@ exports.createAlumni = async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(400).json({ status: false, responseCode: 400, message: error.message });
+    res.status(400).json({ 
+      status: false, 
+      responseCode: 400, 
+      message: error.message });
   }
 };
 
-// Get All Alumni (with Pagination)
+// Get All Alumni (with Pagination and Search)
 exports.getAllAlumni = async (req, res) => {
   try {
-    let { page = 1, limit = 10 } = req.query;
+    let { page = 1, limit = 10, search = '' } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
+    search = search.trim();
 
-    const alumni = await Alumni.find()
+    const query = {
+      $or: [
+        { name: { $regex: search, $options: 'i' } },
+        { lastname: { $regex: search, $options: 'i' } },
+        { department: { $regex: search, $options: 'i' } },
+        { rollNumber: { $regex: search, $options: 'i' } }
+      ]
+    };
+
+    const alumni = await Alumni.find(query)
       .skip((page - 1) * limit)
       .limit(limit);
+
+    const totalAlumni = await Alumni.countDocuments(query);
 
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Alumni fetched successfully!",
+      count: totalAlumni,
       data: alumni
     });
   } catch (error) {
-    res.status(400).json({ status: false, responseCode: 400, message: error.message });
+    res.status(400).json({ 
+      status: false, 
+      responseCode: 400, 
+      message: error.message });
   }
 };
 
@@ -90,7 +117,10 @@ exports.getAlumniById = async (req, res) => {
   try {
     const alumni = await Alumni.findById(req.params.id);
     if (!alumni) {
-      return res.status(404).json({ status: false, responseCode: 404, message: "Alumni not found" });
+      return res.status(404).json({ 
+        status: false, 
+        responseCode: 404, 
+        message: "Alumni not found" });
     }
     res.status(200).json({
       status: true,
@@ -99,7 +129,10 @@ exports.getAlumniById = async (req, res) => {
       data: alumni
     });
   } catch (error) {
-    res.status(400).json({ status: false, responseCode: 400, message: error.message });
+    res.status(400).json({ 
+      status: false, 
+      responseCode: 400,
+       message: error.message });
   }
 };
 
@@ -107,7 +140,10 @@ exports.getAlumniById = async (req, res) => {
 exports.updateAlumni = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ status: false, responseCode: 400, message: errors.array().map(error => error.msg).join(', ') });
+    return res.status(400).json({ 
+      status: false, 
+      responseCode: 400,
+       message: errors.array().map(error => error.msg).join(', ') });
   }
 
   try {
@@ -118,7 +154,10 @@ exports.updateAlumni = async (req, res) => {
     }
     const alumni = await Alumni.findByIdAndUpdate(id, updateData, { new: true });
     if (!alumni) {
-      return res.status(404).json({ status: false, responseCode: 404, message: "Alumni not found" });
+      return res.status(404).json({ 
+        status: false,
+         responseCode: 404, 
+         message: "Alumni not found" });
     }
     res.status(200).json({
       status: true,
@@ -127,11 +166,12 @@ exports.updateAlumni = async (req, res) => {
       data: alumni
     });
   } catch (error) {
-    res.status(400).json({ status: false, responseCode: 400, message: error.message });
+    res.status(400).json({ 
+      status: false, 
+      responseCode: 400, 
+      message: error.message });
   }
 };
-
-const mongoose = require('mongoose');
 
 // Delete Alumni
 exports.deleteAlumni = async (req, res) => {
@@ -140,13 +180,20 @@ exports.deleteAlumni = async (req, res) => {
 
     // Check if ID is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ status: false, responseCode: 400, message: "Invalid ID format" });
+      return res.status(400).json({ 
+        status: false, 
+        responseCode: 400,
+         message: "Invalid ID format"
+         });
     }
 
     // Check if the alumni exists
     const alumni = await Alumni.findById(id);
     if (!alumni) {
-      return res.status(404).json({ status: false, responseCode: 404, message: "Alumni not found" });
+      return res.status(404).json({ 
+        status: false, 
+        responseCode: 404, 
+        message: "Alumni not found" });
     }
 
     // Delete the alumni
@@ -159,6 +206,8 @@ exports.deleteAlumni = async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ status: false, responseCode: 500, message: error.message });
+    res.status(500).json({ status: false, 
+      responseCode: 500, 
+      message: error.message });
   }
 };
