@@ -13,9 +13,10 @@ const announcementRoutes = require('./routes/announcementRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const reportRoutes = require('./routes/reportRoutes');
 const homePageRoutes = require('./routes/homePageRoutes');
-
+const departmentRoutes = require('./routes/departmentRoutes'); 
 const aboutPageRoutes = require('./routes/aboutPageRoutes');
 const termsAndConditionsRoutes = require('./routes/termsAndConditionsRoutes');
+const authRoutes = require('./routes/authRoutes');
 const connectDB = require('./config/db');
 dotenv.config(); 
 const app = express();
@@ -28,6 +29,7 @@ app.use('/public', express.static('public'));
 // Enable CORS
 app.use(cors({
     origin: 'http://localhost:3003',
+    methods: "GET,POST,PUT,DELETE",
     credentials: true
 }));
 
@@ -51,10 +53,11 @@ app.use('/api/alumni', alumniRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/faculty', facultyRoutes);
 app.use('/api/announcements', announcementRoutes);
-app.use('/api/events', eventRoutes);
+app.use('/api/event', eventRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/home', homePageRoutes);
 app.use('/api/about', aboutPageRoutes);
 app.use('/api/terms-and-conditions', termsAndConditionsRoutes);
-
+app.use('/api/departments', departmentRoutes); 
+app.use('/api/auth', authRoutes);
 module.exports = app;

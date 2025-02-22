@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const alumniSchema = new mongoose.Schema({
   name: { type: String, required: true },
   lastname: { type: String, required: true },
-  department: { type: String, required: true },
+  department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department', required: true }, // Single ObjectId
   rollNumber: { type: String, required: true},
   graduationYear: { type: Number, required: true },
   degree: { type: String, required: true },

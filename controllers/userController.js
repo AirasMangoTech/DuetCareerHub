@@ -1,5 +1,6 @@
 const { validationResult } = require('express-validator');
 const User = require('../models/User');
+const Department = require('../models/Department');
 const multer = require('multer');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
@@ -46,6 +47,12 @@ exports.createUser = async (req, res) => {
       });
     }
 
+    // Check if department exists
+    const departmentExists = await Department.findById(department);
+    if (!departmentExists) {
+      return res.status(400).json({ status: false, responseCode: 400, message: "Department does not exist. You cannot register." });
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({
       name,
@@ -68,17 +75,20 @@ exports.createUser = async (req, res) => {
     }
 
     await user.save();
+    const populatedUser = await User.findById(user._id).populate('department', 'name');
+
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "User created successfully!",
       data: {
-        _id: user._id,
-        name: user.name,
-        lastName: user.lastName,
-        email: user.email,
-        contactNumber: user.contactNumber,
-        user_type: "user"
+        _id: populatedUser._id,
+        name: populatedUser.name,
+        lastName: populatedUser.lastName,
+        email: populatedUser.email,
+        contactNumber: populatedUser.contactNumber,
+        user_type: "user",
+        department: populatedUser.department // Include department details
       }
     });
   } catch (error) {
@@ -90,7 +100,7 @@ exports.createUser = async (req, res) => {
   }
 };
 
-// Get All Users
+// Get All Users (with Pagination and Search)
 exports.getAllUsers = async (req, res) => {
   try {
     let { page = 1, limit = 10, search = '' } = req.query;
@@ -103,14 +113,16 @@ exports.getAllUsers = async (req, res) => {
         { name: { $regex: search, $options: 'i' } },
         { lastName: { $regex: search, $options: 'i' } },
         { rollNumber: { $regex: search, $options: 'i' } },
-        { department: { $regex: search, $options: 'i' } }
+        { email: { $regex: search, $options: 'i' } }
       ]
     };
 
     const users = await User.find(query)
       .skip((page - 1) * limit)
       .limit(limit)
-      .select('-password -__v');
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .select('-password -__v')
+      .populate('department', 'name');
 
     const totalUsers = await User.countDocuments(query);
 
@@ -133,7 +145,7 @@ exports.getAllUsers = async (req, res) => {
 // Get User by ID
 exports.getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select('-password -__v');
+    const user = await User.findById(req.params.id).select('-password -__v').populate('department', 'name');
     if (!user) {
       return res.status(404).json({
         status: false,
@@ -161,13 +173,23 @@ exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+
+    // Check if department exists if it's being updated
+    if (updateData.department) {
+      const departmentExists = await Department.findById(updateData.department);
+      if (!departmentExists) {
+        return res.status(400).json({ status: false, responseCode: 400, message: "Department does not exist. You cannot update to this department." });
+      }
+    }
+
     if (req.file) {
       updateData.resume = {
         data: req.file.buffer,
         contentType: req.file.mimetype
       };
     }
-    const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true }).select('-password -__v');
+
+    const updatedUser = await User.findByIdAndUpdate(id, updateData, { new: true }).select('-password -__v').populate('department', 'name');
     if (!updatedUser) {
       return res.status(404).json({
         status: false,

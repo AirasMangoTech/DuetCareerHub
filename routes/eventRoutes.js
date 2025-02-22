@@ -23,10 +23,14 @@ router.put('/:id', [
   body('title').notEmpty().withMessage('Title is required'),
   body('description').notEmpty().withMessage('Description is required'),
   body('address').notEmpty().withMessage('Address is required'),
+  body('date').notEmpty().withMessage('Date is required').isISO8601().withMessage('Date must be a valid ISO 8601 date'),
   eventController.uploadImage
 ], eventController.updateEvent);
 
 // Delete Event
 router.delete('/:id', eventController.deleteEvent);
+
+// Get Event Image
+router.get('/image/:id', eventController.getEventImage);
 
 module.exports = router;

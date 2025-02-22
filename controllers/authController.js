@@ -1,4 +1,3 @@
-// authController.js (Updated)
 const Admin = require('../models/Admin');
 const Alumni = require('../models/Alumni');
 const Faculty = require('../models/Faculty');
@@ -8,6 +7,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 
+// Helper function to get user by email
 const getUserByEmail = async (email) => {
   return await Admin.findOne({ email }) || 
          await Alumni.findOne({ email }) || 
@@ -15,7 +15,7 @@ const getUserByEmail = async (email) => {
          await User.findOne({ email });
 };
 
-// Updated Login Controller
+// Login Controller
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -50,7 +50,7 @@ exports.login = async (req, res) => {
   }
 };
 
-// Updated Forget Password Controller
+// Forget Password Controller
 exports.forgetPassword = async (req, res) => {
   const { email } = req.body;
   try {
@@ -87,4 +87,25 @@ exports.forgetPassword = async (req, res) => {
   }
 };
 
-// Rest of the controllers remain the same...
+// Reset Password Controller
+exports.resetPassword = async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  try {
+    const user = await getUserByEmail(email);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (user.otp !== otp || user.otpExpires < Date.now()) {
+      return res.status(400).json({ message: 'Invalid or expired OTP' });
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    user.otp = undefined;
+    user.otpExpires = undefined;
+    await user.save();
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

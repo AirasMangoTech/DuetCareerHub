@@ -1,6 +1,8 @@
 const Alumni = require('../models/Alumni');
+const Department = require('../models/Department');
 const { validationResult } = require('express-validator');
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 
 // Create Alumni
 exports.createAlumni = async (req, res) => {
@@ -32,6 +34,12 @@ exports.createAlumni = async (req, res) => {
       return res.status(400).json({ status: false, responseCode: 400, message: "Email already exists, please use a different email." });
     }
 
+    // Check if department exists
+    const departmentExists = await Department.findById(department);
+    if (!departmentExists) {
+      return res.status(400).json({ status: false, responseCode: 400, message: "Department does not exist. You cannot register." });
+    }
+
     // Hash Password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -52,18 +60,23 @@ exports.createAlumni = async (req, res) => {
     });
 
     await alumni.save();
+    const populatedAlumni = await Alumni.findById(alumni._id).populate('department', 'name');
 
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Alumni created successfully!",
       data: {
-        _id: alumni._id,
-        first_name: alumni.name,
-        last_name: alumni.lastname,
-        email: alumni.email,
-        phone: alumni.contactNumber,
-        user_type: "alumni"
+        _id: populatedAlumni._id,
+        name: populatedAlumni.name,
+        lastname: populatedAlumni.lastname,
+        email: populatedAlumni.email,
+        contactNumber: populatedAlumni.contactNumber,
+        user_type: "alumni",
+        department: {
+          _id: populatedAlumni.department._id,
+          name: populatedAlumni.department.name
+        }
       }
     });
   } catch (error) {
@@ -86,14 +99,17 @@ exports.getAllAlumni = async (req, res) => {
       $or: [
         { name: { $regex: search, $options: 'i' } },
         { lastname: { $regex: search, $options: 'i' } },
-        { department: { $regex: search, $options: 'i' } },
-        { rollNumber: { $regex: search, $options: 'i' } }
+        { rollNumber: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
       ]
     };
 
     const alumni = await Alumni.find(query)
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .select('-password -__v')
+      .populate('department', 'name');
 
     const totalAlumni = await Alumni.countDocuments(query);
 
@@ -102,7 +118,23 @@ exports.getAllAlumni = async (req, res) => {
       responseCode: 200,
       message: "Alumni fetched successfully!",
       count: totalAlumni,
-      data: alumni
+      data: alumni.map(alumni => ({
+        _id: alumni._id,
+        name: alumni.name,
+        lastname: alumni.lastname,
+        rollNumber: alumni.rollNumber,
+        graduationYear: alumni.graduationYear,
+        degree: alumni.degree,
+        currentJobTitle: alumni.currentJobTitle,
+        companyName: alumni.companyName,
+        contactNumber: alumni.contactNumber,
+        email: alumni.email,
+        user_type: "alumni",
+        department: {
+          _id: alumni.department._id,
+          name: alumni.department.name
+        }
+      }))
     });
   } catch (error) {
     res.status(400).json({ 
@@ -115,7 +147,7 @@ exports.getAllAlumni = async (req, res) => {
 // Get Alumni by ID
 exports.getAlumniById = async (req, res) => {
   try {
-    const alumni = await Alumni.findById(req.params.id);
+    const alumni = await Alumni.findById(req.params.id).select('-password -__v').populate('department', 'name');
     if (!alumni) {
       return res.status(404).json({ 
         status: false, 
@@ -126,7 +158,20 @@ exports.getAlumniById = async (req, res) => {
       status: true,
       responseCode: 200,
       message: "Alumni fetched successfully!",
-      data: alumni
+      data: {
+        _id: alumni._id,
+        name: alumni.name,
+        lastname: alumni.lastname,
+        rollNumber: alumni.rollNumber,
+        graduationYear: alumni.graduationYear,
+        degree: alumni.degree,
+        currentJobTitle: alumni.currentJobTitle,
+        companyName: alumni.companyName,
+        contactNumber: alumni.contactNumber,
+        email: alumni.email,
+        user_type: "alumni",
+        department: alumni.department
+      }
     });
   } catch (error) {
     res.status(400).json({ 
@@ -149,11 +194,21 @@ exports.updateAlumni = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+
+    // Check if department exists if it's being updated
+    if (updateData.department) {
+      const departmentExists = await Department.findById(updateData.department);
+      if (!departmentExists) {
+        return res.status(400).json({ status: false, responseCode: 400, message: "Department does not exist. You cannot update to this department." });
+      }
+    }
+
     if (req.file) {
       updateData.profilePicture = req.file.path;
     }
-    const alumni = await Alumni.findByIdAndUpdate(id, updateData, { new: true });
-    if (!alumni) {
+
+    const updatedAlumni = await Alumni.findByIdAndUpdate(id, updateData, { new: true }).select('-password -__v').populate('department', 'name');
+    if (!updatedAlumni) {
       return res.status(404).json({ 
         status: false,
          responseCode: 404, 
@@ -163,7 +218,20 @@ exports.updateAlumni = async (req, res) => {
       status: true,
       responseCode: 200,
       message: "Alumni updated successfully!",
-      data: alumni
+      data: {
+        _id: updatedAlumni._id,
+        name: updatedAlumni.name,
+        lastname: updatedAlumni.lastname,
+        rollNumber: updatedAlumni.rollNumber,
+        graduationYear: updatedAlumni.graduationYear,
+        degree: updatedAlumni.degree,
+        currentJobTitle: updatedAlumni.currentJobTitle,
+        companyName: updatedAlumni.companyName,
+        contactNumber: updatedAlumni.contactNumber,
+        email: updatedAlumni.email,
+        user_type: "alumni",
+        department: updatedAlumni.department
+      }
     });
   } catch (error) {
     res.status(400).json({ 

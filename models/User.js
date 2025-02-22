@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const userSchema = new mongoose.Schema({
   name: String,
   lastName: String,
-  department: String,
+  department: { type: mongoose.Schema.Types.ObjectId, ref: 'Department', required: true }, // Single ObjectId
   rollNumber: String,
   cgpa: String,
   contactNumber: String,
