@@ -6,9 +6,18 @@ exports.createAnnouncement = async (req, res) => {
     const { title, description } = req.body;
     const announcement = new Announcement({ title, description });
     await announcement.save();
-    res.status(201).json({ message: "Announcement created successfully!" });
+    res.status(200).json({
+      status: true,
+      responseCode: 200,
+      message: "Announcement created successfully!",
+      data: announcement
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message
+    });
   }
 };
 
@@ -16,9 +25,18 @@ exports.createAnnouncement = async (req, res) => {
 exports.getAnnouncements = async (req, res) => {
   try {
     const announcements = await Announcement.find();
-    res.status(200).json(announcements);
+    res.status(200).json({
+      status: true,
+      responseCode: 200,
+      message: "Announcements fetched successfully!",
+      data: announcements
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message
+    });
   }
 };
 
@@ -27,11 +45,24 @@ exports.getAnnouncementById = async (req, res) => {
   try {
     const announcement = await Announcement.findById(req.params.id);
     if (!announcement) {
-      return res.status(404).json({ message: "Announcement not found" });
+      return res.status(404).json({
+        status: false,
+        responseCode: 404,
+        message: "Announcement not found"
+      });
     }
-    res.status(200).json(announcement);
+    res.status(200).json({
+      status: true,
+      responseCode: 200,
+      message: "Announcement fetched successfully!",
+      data: announcement
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message
+    });
   }
 };
 
@@ -45,11 +76,24 @@ exports.updateAnnouncement = async (req, res) => {
       { new: true }
     );
     if (!announcement) {
-      return res.status(404).json({ message: "Announcement not found" });
+      return res.status(404).json({
+        status: false,
+        responseCode: 404,
+        message: "Announcement not found"
+      });
     }
-    res.status(200).json({ message: "Announcement updated successfully!", announcement });
+    res.status(200).json({
+      status: true,
+      responseCode: 200,
+      message: "Announcement updated successfully!",
+      data: announcement
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message
+    });
   }
 };
 
@@ -58,10 +102,22 @@ exports.deleteAnnouncement = async (req, res) => {
   try {
     const announcement = await Announcement.findByIdAndDelete(req.params.id);
     if (!announcement) {
-      return res.status(404).json({ message: "Announcement not found" });
+      return res.status(404).json({
+        status: false,
+        responseCode: 404,
+        message: "Announcement not found"
+      });
     }
-    res.status(200).json({ message: "Announcement deleted successfully!" });
+    res.status(200).json({
+      status: true,
+      responseCode: 200,
+      message: "Announcement deleted successfully!"
+    });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message
+    });
   }
 };

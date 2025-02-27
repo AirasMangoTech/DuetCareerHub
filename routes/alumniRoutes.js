@@ -18,6 +18,9 @@ router.post('/create', [
 // Get All Alumni
 router.get('/', alumniController.getAllAlumni);
 
+// Route to count total alumni and alumni registered last month
+router.get('/count', alumniController.getAlumniStats);
+
 // Get Alumni by ID
 router.get('/:id', alumniController.getAlumniById);
 

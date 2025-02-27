@@ -1,12 +1,19 @@
 const mongoose = require('mongoose');
 
 const announcementSchema = new mongoose.Schema({
-  title: String,
-  description: String,
-  date: {
+  title: {
+    type: String,
+    required: true,
+  },
+  description:{
+    type: String,
+    required: true,
+  },
+  createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
+  // ...other fields...
 }, { timestamps: true });
 
 module.exports = mongoose.model('Announcement', announcementSchema);

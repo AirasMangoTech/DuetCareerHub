@@ -17,7 +17,10 @@ const departmentRoutes = require('./routes/departmentRoutes');
 const aboutPageRoutes = require('./routes/aboutPageRoutes');
 const termsAndConditionsRoutes = require('./routes/termsAndConditionsRoutes');
 const authRoutes = require('./routes/authRoutes');
+const statsRoutes = require('./routes/statsRoutes');
 const connectDB = require('./config/db');
+require('events').EventEmitter.defaultMaxListeners = 15;
+
 dotenv.config(); 
 const app = express();
 
@@ -60,4 +63,6 @@ app.use('/api/about', aboutPageRoutes);
 app.use('/api/terms-and-conditions', termsAndConditionsRoutes);
 app.use('/api/departments', departmentRoutes); 
 app.use('/api/auth', authRoutes);
+app.use('/api', statsRoutes);
+
 module.exports = app;

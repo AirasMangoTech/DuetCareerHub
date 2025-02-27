@@ -95,21 +95,37 @@ exports.getAllAlumni = async (req, res) => {
     limit = parseInt(limit);
     search = search.trim();
 
-    const query = {
-      $or: [
+    let query = {};
+
+    if (search) {
+      query.$or = [
         { name: { $regex: search, $options: 'i' } },
         { lastname: { $regex: search, $options: 'i' } },
         { rollNumber: { $regex: search, $options: 'i' } },
         { email: { $regex: search, $options: 'i' } }
-      ]
-    };
+      ];
+    }
 
     const alumni = await Alumni.find(query)
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
+      .sort({ createdAt: -1 })
       .select('-password -__v')
-      .populate('department', 'name');
+      .populate({
+        path: 'department',
+        select: 'name',
+        strictPopulate: false, // Prevents population errors
+      });
+
+    if (!alumni || alumni.length === 0) {
+      return res.status(404).json({
+        status: false,
+        responseCode: 404,
+        message: 'No alumni found matching the search criteria!',
+        count: 0,
+        data: []
+      });
+    }
 
     const totalAlumni = await Alumni.countDocuments(query);
 
@@ -130,17 +146,20 @@ exports.getAllAlumni = async (req, res) => {
         contactNumber: alumni.contactNumber,
         email: alumni.email,
         user_type: "alumni",
-        department: {
+        department: alumni.department ? {
           _id: alumni.department._id,
           name: alumni.department.name
-        }
+        } : null
       }))
     });
   } catch (error) {
-    res.status(400).json({ 
-      status: false, 
-      responseCode: 400, 
-      message: error.message });
+    console.error("Error fetching alumni:", error);
+    res.status(500).json({
+      status: false,
+      responseCode: 500,
+      message: "Internal Server Error",
+      error: error.message
+    });
   }
 };
 
@@ -277,5 +296,35 @@ exports.deleteAlumni = async (req, res) => {
     res.status(500).json({ status: false, 
       responseCode: 500, 
       message: error.message });
+  }
+};
+
+exports.getAlumniStats = async (req, res) => {
+  try {
+    const totalAlumni = await Alumni.countDocuments();
+
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - 1);
+    startDate.setDate(1);
+    const endDate = new Date();
+    endDate.setDate(1);
+
+    const totalAlumniLastMonth = await Alumni.countDocuments({
+      createdAt: { $gte: startDate, $lt: endDate },
+    });
+
+    res.status(200).json({
+      status: true,
+      responseCode: 200,
+      message: "Alumni statistics fetched successfully!",
+      totalAlumni,
+      totalAlumniLastMonth,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: false,
+      responseCode: 500,
+      message: error.message,
+    });
   }
 };

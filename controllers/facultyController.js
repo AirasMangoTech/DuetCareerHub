@@ -196,3 +196,22 @@ exports.deleteFaculty = async (req, res) => {
       message: error.message });
   }
 };
+
+// Count Total Faculty
+exports.countTotalFaculty = async (req, res) => {
+  try {
+    const totalFaculty = await Faculty.countDocuments();
+    res.status(200).json({
+      status: true,
+      responseCode: 200,
+      message: "Total faculty count fetched successfully!",
+      totalFaculty
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      status: false, 
+      responseCode: 500, 
+      message: error.message 
+    });
+  }
+};
