@@ -1,28 +1,15 @@
 const Event = require('../models/Event');
-const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
-
-// Configure multer for file uploads
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-// Middleware to handle file upload
-exports.uploadImage = upload.single('image');
 
 // Create Event
 exports.createEvent = async (req, res) => {
   try {
-    const { title, description, address, date } = req.body;
+    const { title, description, address, date, imageUrl } = req.body;
     const event = new Event({
-      image: {
-        data: req.file.buffer,
-        contentType: req.file.mimetype
-      },
       title,
       description,
       address,
-      date
+      date,
+      imageUrl // Store image URL directly
     });
     await event.save();
     res.status(200).json({
@@ -35,7 +22,7 @@ exports.createEvent = async (req, res) => {
         description: event.description,
         address: event.address,
         date: event.date,
-        imageUrl: `/api/event/${event._id}`
+        imageUrl: event.imageUrl
       }
     });
   } catch (error) {
@@ -51,19 +38,11 @@ exports.createEvent = async (req, res) => {
 exports.getEvents = async (req, res) => {
   try {
     const events = await Event.find();
-    const eventsWithImageUrl = events.map(event => ({
-      _id: event._id,
-      title: event.title,
-      description: event.description,
-      address: event.address,
-      date: event.date,
-      imageUrl: `/api/event/${event._id}`
-    }));
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Events fetched successfully!",
-      data: eventsWithImageUrl
+      data: events
     });
   } catch (error) {
     res.status(400).json({
@@ -89,14 +68,7 @@ exports.getEventById = async (req, res) => {
       status: true,
       responseCode: 200,
       message: "Event fetched successfully!",
-      data: {
-        _id: event._id,
-        title: event.title,
-        description: event.description,
-        address: event.address,
-        date: event.date,
-        imageUrl: `/api/event/${event._id}`
-      }
+      data: event
     });
   } catch (error) {
     res.status(400).json({
@@ -110,19 +82,14 @@ exports.getEventById = async (req, res) => {
 // Update Event
 exports.updateEvent = async (req, res) => {
   try {
-    const { title, description, address, date } = req.body;
+    const { title, description, address, date, imageUrl } = req.body;
     const updateData = {
       title,
       description,
       address,
-      date
+      date,
+      imageUrl
     };
-    if (req.file) {
-      updateData.image = {
-        data: req.file.buffer,
-        contentType: req.file.mimetype
-      };
-    }
     const event = await Event.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!event) {
       return res.status(404).json({
@@ -135,14 +102,7 @@ exports.updateEvent = async (req, res) => {
       status: true,
       responseCode: 200,
       message: "Event updated successfully!",
-      data: {
-        _id: event._id,
-        title: event.title,
-        description: event.description,
-        address: event.address,
-        date: event.date,
-        imageUrl: `/api/event/${event._id}`
-      }
+      data: event
     });
   } catch (error) {
     res.status(400).json({
@@ -169,28 +129,6 @@ exports.deleteEvent = async (req, res) => {
       responseCode: 200,
       message: "Event deleted successfully!"
     });
-  } catch (error) {
-    res.status(400).json({
-      status: false,
-      responseCode: 400,
-      message: error.message
-    });
-  }
-};
-
-// Get Event Image
-exports.getEventImage = async (req, res) => {
-  try {
-    const event = await Event.findById(req.params.id);
-    if (!event || !event.image || !event.image.data) {
-      return res.status(404).json({
-        status: false,
-        responseCode: 404,
-        message: "Image not found"
-      });
-    }
-    res.set('Content-Type', event.image.contentType);
-    res.send(event.image.data);
   } catch (error) {
     res.status(400).json({
       status: false,

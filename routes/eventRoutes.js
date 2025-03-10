@@ -1,16 +1,9 @@
 const express = require('express');
-const { body } = require('express-validator');
-const router = express.Router();
 const eventController = require('../controllers/eventController');
+const router = express.Router();
 
 // Create Event
-router.post('/create', [
-  body('title').notEmpty().withMessage('Title is required'),
-  body('description').notEmpty().withMessage('Description is required'),
-  body('address').notEmpty().withMessage('Address is required'),
-  body('date').notEmpty().withMessage('Date is required').isISO8601().withMessage('Date must be a valid ISO 8601 date'),
-  eventController.uploadImage
-], eventController.createEvent);
+router.post('/create', eventController.createEvent);
 
 // Get All Events
 router.get('/', eventController.getEvents);
@@ -19,18 +12,9 @@ router.get('/', eventController.getEvents);
 router.get('/:id', eventController.getEventById);
 
 // Update Event
-router.put('/:id', [
-  body('title').notEmpty().withMessage('Title is required'),
-  body('description').notEmpty().withMessage('Description is required'),
-  body('address').notEmpty().withMessage('Address is required'),
-  body('date').notEmpty().withMessage('Date is required').isISO8601().withMessage('Date must be a valid ISO 8601 date'),
-  eventController.uploadImage
-], eventController.updateEvent);
+router.put('/:id', eventController.updateEvent);
 
 // Delete Event
 router.delete('/:id', eventController.deleteEvent);
-
-// Get Event Image
-router.get('/image/:id', eventController.getEventImage);
 
 module.exports = router;

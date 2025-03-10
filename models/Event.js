@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const eventSchema = new mongoose.Schema({
-  name: {
+  title: {
     type: String,
     required: true,
   },
@@ -9,20 +9,22 @@ const eventSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  address: {
+    type: String,
+    required: true,
+  },
   date: {
     type: Date,
+    required: true,
+  },
+  imageUrl: {
+    type: String,
     required: true,
   },
   createdAt: {
     type: Date,
     default: Date.now,
-  },
-  image: {
-    data: Buffer,
-    contentType: String
-  },
-  title: String,
-  address: String
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Event', eventSchema);
