@@ -1,41 +1,44 @@
-const Announcement = require('../models/Announcement');
+const Announcement = require("../models/Announcement");
+const { paginateData } = require("../utils/helper");
 
 // Create Announcement
 exports.createAnnouncement = async (req, res) => {
   try {
-    const { title, description } = req.body;
-    const announcement = new Announcement({ title, description });
+    const { title, description, date } = req.body;
+    const announcement = new Announcement({ title, description, date });
     await announcement.save();
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Announcement created successfully!",
-      data: announcement
+      data: announcement,
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
 // Get All Announcements
 exports.getAnnouncements = async (req, res) => {
+  const { page, limit } = req.query;
   try {
-    const announcements = await Announcement.find();
+    const announcements = await paginateData(Announcement, page, limit, {});
+
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Announcements fetched successfully!",
-      data: announcements
+      data: announcements,
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -48,20 +51,20 @@ exports.getAnnouncementById = async (req, res) => {
       return res.status(404).json({
         status: false,
         responseCode: 404,
-        message: "Announcement not found"
+        message: "Announcement not found",
       });
     }
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Announcement fetched successfully!",
-      data: announcement
+      data: announcement,
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -79,20 +82,20 @@ exports.updateAnnouncement = async (req, res) => {
       return res.status(404).json({
         status: false,
         responseCode: 404,
-        message: "Announcement not found"
+        message: "Announcement not found",
       });
     }
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Announcement updated successfully!",
-      data: announcement
+      data: announcement,
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -105,19 +108,19 @@ exports.deleteAnnouncement = async (req, res) => {
       return res.status(404).json({
         status: false,
         responseCode: 404,
-        message: "Announcement not found"
+        message: "Announcement not found",
       });
     }
     res.status(200).json({
       status: true,
       responseCode: 200,
-      message: "Announcement deleted successfully!"
+      message: "Announcement deleted successfully!",
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };

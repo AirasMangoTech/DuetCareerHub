@@ -1,4 +1,5 @@
-const Event = require('../models/Event');
+const Event = require("../models/Event");
+const { paginateData } = require("../utils/helper");
 
 // Create Event
 exports.createEvent = async (req, res) => {
@@ -9,7 +10,7 @@ exports.createEvent = async (req, res) => {
       description,
       address,
       date,
-      imageUrl // Store image URL directly
+      imageUrl, // Store image URL directly
     });
     await event.save();
     res.status(200).json({
@@ -22,33 +23,36 @@ exports.createEvent = async (req, res) => {
         description: event.description,
         address: event.address,
         date: event.date,
-        imageUrl: event.imageUrl
-      }
+        imageUrl: event.imageUrl,
+      },
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };
 
 // Get All Events
 exports.getEvents = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
   try {
-    const events = await Event.find();
+    const events = await paginateData(Event, page, limit, {
+      imageUrl: { $exists: true },
+    });
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Events fetched successfully!",
-      data: events
+      data: events,
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -61,20 +65,20 @@ exports.getEventById = async (req, res) => {
       return res.status(404).json({
         status: false,
         responseCode: 404,
-        message: "Event not found"
+        message: "Event not found",
       });
     }
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Event fetched successfully!",
-      data: event
+      data: event,
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -88,27 +92,29 @@ exports.updateEvent = async (req, res) => {
       description,
       address,
       date,
-      imageUrl
+      imageUrl,
     };
-    const event = await Event.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    const event = await Event.findByIdAndUpdate(req.params.id, updateData, {
+      new: true,
+    });
     if (!event) {
       return res.status(404).json({
         status: false,
         responseCode: 404,
-        message: "Event not found"
+        message: "Event not found",
       });
     }
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Event updated successfully!",
-      data: event
+      data: event,
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };
@@ -121,19 +127,19 @@ exports.deleteEvent = async (req, res) => {
       return res.status(404).json({
         status: false,
         responseCode: 404,
-        message: "Event not found"
+        message: "Event not found",
       });
     }
     res.status(200).json({
       status: true,
       responseCode: 200,
-      message: "Event deleted successfully!"
+      message: "Event deleted successfully!",
     });
   } catch (error) {
     res.status(400).json({
       status: false,
       responseCode: 400,
-      message: error.message
+      message: error.message,
     });
   }
 };

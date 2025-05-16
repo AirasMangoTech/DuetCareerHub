@@ -3,6 +3,7 @@ const Faculty = require('../models/Faculty');
 const Department = require('../models/Department');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
+const { paginateData } = require('../utils/helper');
 
 // Create Faculty (Register)
 exports.createFaculty = async (req, res) => {
@@ -72,13 +73,23 @@ exports.getAllFaculties = async (req, res) => {
         { email: { $regex: search, $options: 'i' } }
       ]
     };
+ 
 
-    const faculties = await Faculty.find(query)
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 }) // Sort by createdAt in descending order
-      .select('-password -__v')
-      .populate('department', 'name');
+
+       const populateOpt = [
+            {
+              path: "department",
+              select: "name",
+            },
+          ];
+          const faculties = await paginateData(
+            Faculty,
+            page,
+            limit,
+            query,
+            "-password -__v",
+            populateOpt
+          );
 
     const totalFaculties = await Faculty.countDocuments(query);
 

@@ -1,11 +1,15 @@
-const { validationResult } = require('express-validator');
-const TermsAndConditions = require('../models/TermsAndConditions');
+const { validationResult } = require("express-validator");
+const TermsAndConditions = require("../models/TermsAndConditions");
+const { paginateData } = require("../utils/helper");
 
 // Create or Update Terms and Conditions
 exports.createOrUpdateTermsAndConditions = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const errorMessages = errors.array().map(error => error.msg).join(', ');
+    const errorMessages = errors
+      .array()
+      .map((error) => error.msg)
+      .join(", ");
     return res.status(400).json({ message: errorMessages });
   }
 
@@ -16,7 +20,10 @@ exports.createOrUpdateTermsAndConditions = async (req, res) => {
       { content },
       { new: true, upsert: true }
     );
-    res.status(200).json({ message: "Terms and Conditions updated successfully!", termsAndConditions });
+    res.status(200).json({
+      message: "Terms and Conditions updated successfully!",
+      termsAndConditions,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -24,9 +31,17 @@ exports.createOrUpdateTermsAndConditions = async (req, res) => {
 
 // Get All Terms and Conditions
 exports.getTermsAndConditions = async (req, res) => {
+  const {page,limit}=req.query
   try {
-    const termsAndConditions = await TermsAndConditions.find();
-    res.status(200).json({ message: "Terms and Conditions retrieved successfully!", termsAndConditions });
+
+    const termsAndConditions = await paginateData(TermsAndConditions,page,limit,{})
+    
+    
+
+    res.status(200).json({
+      message: "Terms and Conditions retrieved successfully!",
+      termsAndConditions,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -37,9 +52,14 @@ exports.getTermsAndConditionsById = async (req, res) => {
   try {
     const termsAndConditions = await TermsAndConditions.findById(req.params.id);
     if (!termsAndConditions) {
-      return res.status(404).json({ message: "Terms and Conditions not found!" });
+      return res
+        .status(404)
+        .json({ message: "Terms and Conditions not found!" });
     }
-    res.status(200).json({ message: "Terms and Conditions retrieved successfully!", termsAndConditions });
+    res.status(200).json({
+      message: "Terms and Conditions retrieved successfully!",
+      termsAndConditions,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -49,7 +69,10 @@ exports.getTermsAndConditionsById = async (req, res) => {
 exports.updateTermsAndConditions = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const errorMessages = errors.array().map(error => error.msg).join(', ');
+    const errorMessages = errors
+      .array()
+      .map((error) => error.msg)
+      .join(", ");
     return res.status(400).json({ message: errorMessages });
   }
 
@@ -61,9 +84,14 @@ exports.updateTermsAndConditions = async (req, res) => {
       { new: true }
     );
     if (!termsAndConditions) {
-      return res.status(404).json({ message: "Terms and Conditions not found!" });
+      return res
+        .status(404)
+        .json({ message: "Terms and Conditions not found!" });
     }
-    res.status(200).json({ message: "Terms and Conditions updated successfully!", termsAndConditions });
+    res.status(200).json({
+      message: "Terms and Conditions updated successfully!",
+      termsAndConditions,
+    });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
@@ -72,11 +100,17 @@ exports.updateTermsAndConditions = async (req, res) => {
 // Delete Terms and Conditions
 exports.deleteTermsAndConditions = async (req, res) => {
   try {
-    const termsAndConditions = await TermsAndConditions.findByIdAndDelete(req.params.id);
+    const termsAndConditions = await TermsAndConditions.findByIdAndDelete(
+      req.params.id
+    );
     if (!termsAndConditions) {
-      return res.status(404).json({ message: "Terms and Conditions not found!" });
+      return res
+        .status(404)
+        .json({ message: "Terms and Conditions not found!" });
     }
-    res.status(200).json({ message: "Terms and Conditions deleted successfully!" });
+    res
+      .status(200)
+      .json({ message: "Terms and Conditions deleted successfully!" });
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

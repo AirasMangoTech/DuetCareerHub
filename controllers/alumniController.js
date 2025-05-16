@@ -1,43 +1,69 @@
-const Alumni = require('../models/Alumni');
-const Department = require('../models/Department');
-const { validationResult } = require('express-validator');
-const bcrypt = require('bcrypt');
-const mongoose = require('mongoose');
+const Alumni = require("../models/Alumni");
+const Department = require("../models/Department");
+const { validationResult } = require("express-validator");
+const bcrypt = require("bcrypt");
+const mongoose = require("mongoose");
+const { paginateData } = require("../utils/helper");
 
 // Create Alumni
 exports.createAlumni = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ 
-        status: false,
-        responseCode: 400, 
-        message: errors.array().map(error => error.msg).join(', ') });
+    return res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: errors
+        .array()
+        .map((error) => error.msg)
+        .join(", "),
+    });
   }
 
   try {
-    const { 
-       name, lastname, department, rollNumber, 
-       graduationYear, degree, currentJobTitle, companyName,
-       contactNumber, email, password } = req.body;
+    const {
+      name,
+      lastname,
+      department,
+      rollNumber,
+      graduationYear,
+      degree,
+      currentJobTitle,
+      companyName,
+      contactNumber,
+      email,
+      password,
+      cgpa,
+    } = req.body;
 
     // Check if rollNumber already exists within the same department
     const existingAlumni = await Alumni.findOne({ rollNumber, department });
     if (existingAlumni) {
-      return res.status(400).json({ 
-        status: false, responseCode: 400, 
-        message: "Roll number already exists in this department, please use a different roll number." });
+      return res.status(400).json({
+        status: false,
+        responseCode: 400,
+        message:
+          "Roll number already exists in this department, please use a different roll number.",
+      });
     }
 
     // Check if email already exists
     const existingEmail = await Alumni.findOne({ email });
     if (existingEmail) {
-      return res.status(400).json({ status: false, responseCode: 400, message: "Email already exists, please use a different email." });
+      return res.status(400).json({
+        status: false,
+        responseCode: 400,
+        message: "Email already exists, please use a different email.",
+      });
     }
 
     // Check if department exists
     const departmentExists = await Department.findById(department);
     if (!departmentExists) {
-      return res.status(400).json({ status: false, responseCode: 400, message: "Department does not exist. You cannot register." });
+      return res.status(400).json({
+        status: false,
+        responseCode: 400,
+        message: "Department does not exist. You cannot register.",
+      });
     }
 
     // Hash Password
@@ -45,22 +71,26 @@ exports.createAlumni = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new alumni instance
-    const alumni = new Alumni({ 
-      name, 
-      lastname, 
-      department, 
-      rollNumber, 
-      graduationYear, 
-      degree, 
-      currentJobTitle, 
-      companyName, 
-      contactNumber, 
+    const alumni = new Alumni({
+      name,
+      lastname,
+      department,
+      rollNumber,
+      cgpa,
+      graduationYear,
+      degree,
+      currentJobTitle,
+      companyName,
+      contactNumber,
       email,
-      password: hashedPassword 
+      password: hashedPassword,
     });
 
     await alumni.save();
-    const populatedAlumni = await Alumni.findById(alumni._id).populate('department', 'name');
+    const populatedAlumni = await Alumni.findById(alumni._id).populate(
+      "department",
+      "name"
+    );
 
     res.status(200).json({
       status: true,
@@ -75,22 +105,23 @@ exports.createAlumni = async (req, res) => {
         user_type: "alumni",
         department: {
           _id: populatedAlumni.department._id,
-          name: populatedAlumni.department.name
-        }
-      }
+          name: populatedAlumni.department.name,
+        },
+      },
     });
   } catch (error) {
-    res.status(400).json({ 
-      status: false, 
-      responseCode: 400, 
-      message: error.message });
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message,
+    });
   }
 };
 
 // Get All Alumni (with Pagination and Search)
 exports.getAllAlumni = async (req, res) => {
   try {
-    let { page = 1, limit = 10, search = '' } = req.query;
+    let { page = 1, limit = 10, search = "" } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
     search = search.trim();
@@ -99,31 +130,37 @@ exports.getAllAlumni = async (req, res) => {
 
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { lastname: { $regex: search, $options: 'i' } },
-        { rollNumber: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
+        { name: { $regex: search, $options: "i" } },
+        { lastname: { $regex: search, $options: "i" } },
+        { rollNumber: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
       ];
     }
 
-    const alumni = await Alumni.find(query)
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .sort({ createdAt: -1 })
-      .select('-password -__v')
-      .populate({
-        path: 'department',
-        select: 'name',
-        strictPopulate: false, // Prevents population errors
-      });
+    
+
+       const populateOpt = [
+            {
+              path: "department",
+              select: "name",
+            },
+          ];
+          const alumni = await paginateData(
+            Alumni,
+            page,
+            limit,
+            query,
+            "-password -__v",
+            populateOpt
+          );
 
     if (!alumni || alumni.length === 0) {
       return res.status(404).json({
         status: false,
         responseCode: 404,
-        message: 'No alumni found matching the search criteria!',
+        message: "No alumni found matching the search criteria!",
         count: 0,
-        data: []
+        data: [],
       });
     }
 
@@ -133,24 +170,7 @@ exports.getAllAlumni = async (req, res) => {
       status: true,
       responseCode: 200,
       message: "Alumni fetched successfully!",
-      count: totalAlumni,
-      data: alumni.map(alumni => ({
-        _id: alumni._id,
-        name: alumni.name,
-        lastname: alumni.lastname,
-        rollNumber: alumni.rollNumber,
-        graduationYear: alumni.graduationYear,
-        degree: alumni.degree,
-        currentJobTitle: alumni.currentJobTitle,
-        companyName: alumni.companyName,
-        contactNumber: alumni.contactNumber,
-        email: alumni.email,
-        user_type: "alumni",
-        department: alumni.department ? {
-          _id: alumni.department._id,
-          name: alumni.department.name
-        } : null
-      }))
+      data: alumni
     });
   } catch (error) {
     console.error("Error fetching alumni:", error);
@@ -158,7 +178,7 @@ exports.getAllAlumni = async (req, res) => {
       status: false,
       responseCode: 500,
       message: "Internal Server Error",
-      error: error.message
+      error: error.message,
     });
   }
 };
@@ -166,12 +186,15 @@ exports.getAllAlumni = async (req, res) => {
 // Get Alumni by ID
 exports.getAlumniById = async (req, res) => {
   try {
-    const alumni = await Alumni.findById(req.params.id).select('-password -__v').populate('department', 'name');
+    const alumni = await Alumni.findById(req.params.id)
+      .select("-password -__v")
+      .populate("department", "name");
     if (!alumni) {
-      return res.status(404).json({ 
-        status: false, 
-        responseCode: 404, 
-        message: "Alumni not found" });
+      return res.status(404).json({
+        status: false,
+        responseCode: 404,
+        message: "Alumni not found",
+      });
     }
     res.status(200).json({
       status: true,
@@ -189,14 +212,15 @@ exports.getAlumniById = async (req, res) => {
         contactNumber: alumni.contactNumber,
         email: alumni.email,
         user_type: "alumni",
-        department: alumni.department
-      }
+        department: alumni.department,
+      },
     });
   } catch (error) {
-    res.status(400).json({ 
-      status: false, 
+    res.status(400).json({
+      status: false,
       responseCode: 400,
-       message: error.message });
+      message: error.message,
+    });
   }
 };
 
@@ -204,10 +228,14 @@ exports.getAlumniById = async (req, res) => {
 exports.updateAlumni = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    return res.status(400).json({ 
-      status: false, 
+    return res.status(400).json({
+      status: false,
       responseCode: 400,
-       message: errors.array().map(error => error.msg).join(', ') });
+      message: errors
+        .array()
+        .map((error) => error.msg)
+        .join(", "),
+    });
   }
 
   try {
@@ -218,7 +246,12 @@ exports.updateAlumni = async (req, res) => {
     if (updateData.department) {
       const departmentExists = await Department.findById(updateData.department);
       if (!departmentExists) {
-        return res.status(400).json({ status: false, responseCode: 400, message: "Department does not exist. You cannot update to this department." });
+        return res.status(400).json({
+          status: false,
+          responseCode: 400,
+          message:
+            "Department does not exist. You cannot update to this department.",
+        });
       }
     }
 
@@ -226,12 +259,17 @@ exports.updateAlumni = async (req, res) => {
       updateData.profilePicture = req.file.path;
     }
 
-    const updatedAlumni = await Alumni.findByIdAndUpdate(id, updateData, { new: true }).select('-password -__v').populate('department', 'name');
+    const updatedAlumni = await Alumni.findByIdAndUpdate(id, updateData, {
+      new: true,
+    })
+      .select("-password -__v")
+      .populate("department", "name");
     if (!updatedAlumni) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         status: false,
-         responseCode: 404, 
-         message: "Alumni not found" });
+        responseCode: 404,
+        message: "Alumni not found",
+      });
     }
     res.status(200).json({
       status: true,
@@ -249,14 +287,15 @@ exports.updateAlumni = async (req, res) => {
         contactNumber: updatedAlumni.contactNumber,
         email: updatedAlumni.email,
         user_type: "alumni",
-        department: updatedAlumni.department
-      }
+        department: updatedAlumni.department,
+      },
     });
   } catch (error) {
-    res.status(400).json({ 
-      status: false, 
-      responseCode: 400, 
-      message: error.message });
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message,
+    });
   }
 };
 
@@ -267,20 +306,21 @@ exports.deleteAlumni = async (req, res) => {
 
     // Check if ID is a valid MongoDB ObjectId
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ 
-        status: false, 
+      return res.status(400).json({
+        status: false,
         responseCode: 400,
-         message: "Invalid ID format"
-         });
+        message: "Invalid ID format",
+      });
     }
 
     // Check if the alumni exists
     const alumni = await Alumni.findById(id);
     if (!alumni) {
-      return res.status(404).json({ 
-        status: false, 
-        responseCode: 404, 
-        message: "Alumni not found" });
+      return res.status(404).json({
+        status: false,
+        responseCode: 404,
+        message: "Alumni not found",
+      });
     }
 
     // Delete the alumni
@@ -289,13 +329,12 @@ exports.deleteAlumni = async (req, res) => {
     res.status(200).json({
       status: true,
       responseCode: 200,
-      message: "Alumni deleted successfully!"
+      message: "Alumni deleted successfully!",
     });
-
   } catch (error) {
-    res.status(500).json({ status: false, 
-      responseCode: 500, 
-      message: error.message });
+    res
+      .status(500)
+      .json({ status: false, responseCode: 500, message: error.message });
   }
 };
 
