@@ -2,39 +2,46 @@ const Admin = require("../models/Admin");
 const Alumni = require("../models/Alumni");
 const Faculty = require("../models/Faculty");
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
 // Helper function to get user by email
 const getUserByEmail = async (email) => {
+  const regex = new RegExp(email, "i");
   return (
-    (await Admin.findOne({ email })) ||
-    (await Alumni.findOne({ email })) ||
-    (await Faculty.findOne({ email })) ||
-    (await User.findOne({ email }))
+    (await Admin.findOne({ email: { $regex: regex } })) ||
+    (await Alumni.findOne({ email: { $regex: regex } })) ||
+    (await Faculty.findOne({ email: { $regex: regex } })) ||
+    (await User.findOne({ email: { $regex: regex } }))
   );
 };
 
 // Login Controller
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const user = await getUserByEmail(email);
+
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    console.log("✅ Found user:", user.email);
+    console.log("🔒 Plain password:", password);
+    console.log("🔐 Hashed password from DB:", user.password);
+
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("✅ Password match:", isMatch);
+
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Create user response without sensitive data
     const userResponse = user.toObject();
     delete userResponse.password;
-    delete userResponse.otp;
-    delete userResponse.otpExpires;
 
     const token = jwt.sign(
       { id: user._id, role: user.role },

@@ -5,6 +5,7 @@ const Alumni = require("../models/Alumni");
 const User = require("../models/User");
 const Faculty = require("../models/Faculty");
 const Event = require("../models/Event");
+const { paginateData } = require("../utils/helper");
 
 // Create Admin (Register)
 exports.createAdmin = async (req, res) => {
@@ -36,8 +37,11 @@ exports.createAdmin = async (req, res) => {
         message: "Email already exists, please use a different email.",
       });
     }
+    console.log(password, "create pass");
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    console.log("📥 Input Password:", password);
+    console.log("🔐 Hashed Password:", hashedPassword);
     const admin = new Admin({
       name,
       lastName,
@@ -57,8 +61,11 @@ exports.createAdmin = async (req, res) => {
 
 // Get All Admins
 exports.getAllAdmins = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+
   try {
-    const admins = await Admin.find().select("-password -__v");
+    const admins = await paginateData(Admin, page, limit, {}, "-password -__v");
+
     res.status(200).json(admins);
   } catch (error) {
     res.status(400).json({ message: error.message });
