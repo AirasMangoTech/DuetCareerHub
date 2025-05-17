@@ -1,8 +1,9 @@
-const Alumni = require('../models/Alumni');
-const User = require('../models/User');
-const Faculty = require('../models/Faculty');
-const Announcement = require('../models/Announcement');
-const Event = require('../models/Event');
+const Alumni = require("../models/Alumni");
+const User = require("../models/User");
+const Faculty = require("../models/Faculty");
+const Announcement = require("../models/Announcement");
+const Event = require("../models/Event");
+const { paginateData } = require("../utils/helper");
 
 exports.getStats = async (req, res) => {
   try {
@@ -29,12 +30,12 @@ exports.getStats = async (req, res) => {
     const latestAnnouncements = await Announcement.find()
       .sort({ createdAt: -1 })
       .limit(5)
-      .select('-__v');
+      .select("-__v");
 
     const latestEvents = await Event.find()
       .sort({ createdAt: -1 })
       .limit(3)
-      .select('-__v');
+      .select("-__v");
 
     res.status(200).json({
       status: true,
@@ -52,6 +53,47 @@ exports.getStats = async (req, res) => {
       },
     });
   } catch (error) {
+    res.status(500).json({
+      status: false,
+      responseCode: 500,
+      message: error.message,
+    });
+  }
+};
+
+exports.getHome = async (req, res) => {
+  const { page, limit } = req.query;
+  try {
+    let query = { profilePicture: { $exists: true } };
+    const populateOpt = [
+      {
+        path: "department",
+        select: "name",
+      },
+    ];
+    const faculty = await paginateData(
+      Faculty,
+      page,
+      limit,
+      query,
+      "-password",
+      populateOpt
+    );
+    const users = await paginateData(
+      User,
+      page,
+      limit,
+      query,
+      "-password",
+      populateOpt
+    );
+    res.json({
+      faculty: faculty.data,
+      users: users.data,
+    });
+  } catch (error) {
+    console.log(error);
+
     res.status(500).json({
       status: false,
       responseCode: 500,

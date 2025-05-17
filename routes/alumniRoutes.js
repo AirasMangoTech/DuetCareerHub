@@ -34,17 +34,7 @@ router.get("/:id", alumniController.getAlumniById);
 // Update Alumni
 router.put(
   "/:id",
-  [
-    body("name").notEmpty().withMessage("Name is required"),
-    body("lastname").notEmpty().withMessage("Last name is required"),
-    body("department").notEmpty().withMessage("Department is required"),
-    body("rollNumber").notEmpty().withMessage("Roll number is required"),
-    body("graduationYear")
-      .notEmpty()
-      .withMessage("Graduation year is required"),
-    body("degree").notEmpty().withMessage("Degree is required"),
-    body("email").isEmail().withMessage("Enter a valid email"),
-  ],
+  
   alumniController.updateAlumni
 );
 

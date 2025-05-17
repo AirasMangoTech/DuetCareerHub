@@ -54,6 +54,7 @@ connectDB();
 // Use cookie-parser middleware
 app.use(cookieParser());
 
+
 // Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/alumni", alumniRoutes);
