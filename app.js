@@ -35,7 +35,7 @@ app.use("/uploads/", express.static("uploads"));
 // Enable CORS
 app.use(
   cors({
-    origin: "http://localhost:3003",
+    origin: ["http://localhost:3003", "http://localhost:5173"],
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
