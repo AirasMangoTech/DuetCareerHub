@@ -10,7 +10,10 @@ router.post(
     body("name").notEmpty().withMessage("Name is required"),
     body("lastname").notEmpty().withMessage("Last name is required"),
     body("department").notEmpty().withMessage("Department is required"),
-    body("rollNumber").notEmpty().withMessage("Roll number is required"),
+    body("rollNumber")
+      .optional()
+      .isString()
+      .withMessage("Roll number must be a string"),
     body("cgpa").notEmpty().withMessage("Roll number is required"),
     body("graduationYear")
       .notEmpty()
@@ -34,7 +37,7 @@ router.get("/:id", alumniController.getAlumniById);
 // Update Alumni
 router.put(
   "/:id",
-  
+
   alumniController.updateAlumni
 );
 
