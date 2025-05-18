@@ -27,15 +27,7 @@ router.get('/', facultyController.getAllFaculties);
 router.get('/:id', facultyController.getFacultyById);
 
 // Update Faculty
-router.put('/:id', [
-  body('name').notEmpty().withMessage('Name is required'),
-  body('lastname').notEmpty().withMessage('Last name is required'),
-  body('department').notEmpty().withMessage('Department is required'),
-  body('designation').notEmpty().withMessage('Designation is required'),
-  body('qualification').notEmpty().withMessage('Qualification is required'),
-  body('contactNumber').notEmpty().withMessage('Contact number is required'),
-  body('email').isEmail().withMessage('Enter a valid email')
-], facultyController.updateFaculty);
+router.put('/:id',  facultyController.updateFaculty);
 
 // Delete Faculty
 router.delete('/:id', facultyController.deleteFaculty);

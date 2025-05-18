@@ -137,22 +137,20 @@ exports.getAllAlumni = async (req, res) => {
       ];
     }
 
-    
-
-       const populateOpt = [
-            {
-              path: "department",
-              select: "name",
-            },
-          ];
-          const alumni = await paginateData(
-            Alumni,
-            page,
-            limit,
-            query,
-            "-password -__v",
-            populateOpt
-          );
+    const populateOpt = [
+      {
+        path: "department",
+        select: "name",
+      },
+    ];
+    const alumni = await paginateData(
+      Alumni,
+      page,
+      limit,
+      query,
+      "-password -__v",
+      populateOpt
+    );
 
     if (!alumni || alumni.length === 0) {
       return res.status(404).json({
@@ -170,7 +168,7 @@ exports.getAllAlumni = async (req, res) => {
       status: true,
       responseCode: 200,
       message: "Alumni fetched successfully!",
-      data: alumni
+      data: alumni,
     });
   } catch (error) {
     console.error("Error fetching alumni:", error);
@@ -226,38 +224,9 @@ exports.getAlumniById = async (req, res) => {
 
 // Update Alumni
 exports.updateAlumni = async (req, res) => {
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      status: false,
-      responseCode: 400,
-      message: errors
-        .array()
-        .map((error) => error.msg)
-        .join(", "),
-    });
-  }
-
   try {
     const { id } = req.params;
     const updateData = req.body;
-
-    // Check if department exists if it's being updated
-    if (updateData.department) {
-      const departmentExists = await Department.findById(updateData.department);
-      if (!departmentExists) {
-        return res.status(400).json({
-          status: false,
-          responseCode: 400,
-          message:
-            "Department does not exist. You cannot update to this department.",
-        });
-      }
-    }
-
-    if (req.file) {
-      updateData.profilePicture = req.file.path;
-    }
 
     const updatedAlumni = await Alumni.findByIdAndUpdate(id, updateData, {
       new: true,
@@ -275,20 +244,7 @@ exports.updateAlumni = async (req, res) => {
       status: true,
       responseCode: 200,
       message: "Alumni updated successfully!",
-      data: {
-        _id: updatedAlumni._id,
-        name: updatedAlumni.name,
-        lastname: updatedAlumni.lastname,
-        rollNumber: updatedAlumni.rollNumber,
-        graduationYear: updatedAlumni.graduationYear,
-        degree: updatedAlumni.degree,
-        currentJobTitle: updatedAlumni.currentJobTitle,
-        companyName: updatedAlumni.companyName,
-        contactNumber: updatedAlumni.contactNumber,
-        email: updatedAlumni.email,
-        user_type: "alumni",
-        department: updatedAlumni.department,
-      },
+      data: updatedAlumni,
     });
   } catch (error) {
     res.status(400).json({

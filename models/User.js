@@ -28,14 +28,43 @@ const userSchema = new mongoose.Schema(
       data: Buffer,
       contentType: String,
     },
-    portfolioURL: String,
-    socialLinks: {
-      linkedIn: String,
-      github: String,
+
+    dob: Date,
+    address: String,
+    personalizedDescription: String,
+    linkedInUrl: String,
+    gitHubUrl: String,
+
+    academicDetails: {
+      enrollNumber: String,
+      department: String,
+      semester: String,
     },
-    achievements: [String],
+    matriculationDetails: {
+      schoolName: String,
+      passingYear: String,
+      grade: String,
+    },
+    intermediateDetails: {
+      collegeName: String,
+      passingYear: String,
+      grade: String,
+    },
     skills: [String],
-    certifications: [String],
+    workExperience: [
+      {
+        companyName: String,
+        jobTitle: String,
+        startYear: String,
+        endYear: String,
+        responsibilities: String,
+      },
+    ],
+
+    portfolioURL: String,
+
+    // achievements: [String],
+    // certifications: [String],
     otp: {
       type: String,
       required: false,

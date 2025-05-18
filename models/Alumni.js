@@ -25,15 +25,43 @@ const alumniSchema = new mongoose.Schema({
     data: Buffer,
     contentType: String,
   },
+
+  dob: Date,
+  address: String,
+  personalizedDescription: String,
+  linkedInUrl: String,
+  gitHubUrl: String,
+  academicDetails: {
+    enrollNumber: String,
+    department: String,
+    semester: String,
+  },
+  matriculationDetails: {
+    schoolName: String,
+    passingYear: String,
+    grade: String,
+  },
+  intermediateDetails: {
+    collegeName: String,
+    passingYear: String,
+    grade: String,
+  },
+
+  workExperience: [
+    {
+      companyName: String,
+      jobTitle: String,
+      startYear: String,
+      endYear: String,
+      responsibilities: String,
+    },
+  ],
+
   portfolioURL: String,
-  pastJobExperiences: [String],
   skills: [String],
   certifications: [String],
-  socialLinks: {
-    linkedIn: String,
-  },
+
   achievements: [String],
-  personalizedDescription: String,
   createdAt: { type: Date, default: Date.now },
   otp: {
     type: String,
@@ -44,7 +72,5 @@ const alumniSchema = new mongoose.Schema({
     required: false,
   },
 });
-
- 
 
 module.exports = mongoose.model("Alumni", alumniSchema);

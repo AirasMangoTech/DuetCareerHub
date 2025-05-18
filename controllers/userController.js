@@ -202,32 +202,13 @@ exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
-
-    // Check if department exists if it's being updated
-    if (updateData.department) {
-      const departmentExists = await Department.findById(updateData.department);
-      if (!departmentExists) {
-        return res.status(400).json({
-          status: false,
-          responseCode: 400,
-          message:
-            "Department does not exist. You cannot update to this department.",
-        });
-      }
-    }
-
-    if (req.file) {
-      updateData.resume = {
-        data: req.file.buffer,
-        contentType: req.file.mimetype,
-      };
-    }
-
+    
     const updatedUser = await User.findByIdAndUpdate(id, updateData, {
       new: true,
     })
       .select("-password -__v")
       .populate("department", "name");
+
     if (!updatedUser) {
       return res.status(404).json({
         status: false,
