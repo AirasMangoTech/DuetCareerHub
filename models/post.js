@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 
 const postSchema = new mongoose.Schema(
   {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      refPath: "creator",
+    },
+    creator: {
+      type: String,
+      enums: ["User", "Faculty", "Alumni"],
+    },
     image: String,
     title: String,
     imageDesc: String,

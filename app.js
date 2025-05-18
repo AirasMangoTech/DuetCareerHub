@@ -19,6 +19,7 @@ const termsAndConditionsRoutes = require("./routes/termsAndConditionsRoutes");
 const authRoutes = require("./routes/authRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
+const postRoutes = require("./routes/post");
 const connectDB = require("./config/db");
 require("events").EventEmitter.defaultMaxListeners = 15;
 
@@ -54,7 +55,6 @@ connectDB();
 // Use cookie-parser middleware
 app.use(cookieParser());
 
-
 // Routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/alumni", alumniRoutes);
@@ -70,5 +70,6 @@ app.use("/api/departments", departmentRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api", statsRoutes);
 app.use("/api/system", uploadRoutes);
+app.use("/api/post", postRoutes);
 
 module.exports = app;
