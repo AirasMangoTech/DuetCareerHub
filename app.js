@@ -72,4 +72,7 @@ app.use("/api", statsRoutes);
 app.use("/api/system", uploadRoutes);
 app.use("/api/post", postRoutes);
 
+app.get("/get", async (req, res) => {
+  console.log("backend is running");
+});
 module.exports = app;
