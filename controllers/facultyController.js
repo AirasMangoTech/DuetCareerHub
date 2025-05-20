@@ -65,7 +65,7 @@ exports.createFaculty = async (req, res) => {
     await faculty.save();
 
     const populatedFaculty = await Faculty.findById(faculty._id).populate(
-      "department",
+      "academicDetails.department",
       "name"
     );
 
@@ -110,7 +110,7 @@ exports.getAllFaculties = async (req, res) => {
 
     const populateOpt = [
       {
-        path: "department",
+        path: "academicDetails.department",
         select: "name",
       },
     ];
@@ -145,7 +145,7 @@ exports.getAllFaculties = async (req, res) => {
 exports.getFacultyById = async (req, res) => {
   try {
     const faculty = await Faculty.findById(req.params.id)
-      .populate("department", "name")
+      .populate("academicDetails.department", "name")
       .select("-password -__v");
     if (!faculty) {
       return res.status(404).json({

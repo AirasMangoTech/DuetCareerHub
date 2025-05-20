@@ -23,11 +23,10 @@ const facultySchema = new mongoose.Schema({
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Department",
-        required: true,
       },
     ],
-    designation: { type: String, required: true },
-    qualification: { type: String, required: true },
+    designation: { type: String },
+    qualification: { type: String },
     experienceYear: String,
     specialization: String,
     subjects: [String],
