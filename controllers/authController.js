@@ -6,6 +6,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
+require('dotenv').config()
+
 
 // Helper function to get user by email
 const getUserByEmail = async (email) => {
@@ -43,6 +45,7 @@ exports.login = async (req, res) => {
       user.otpExpires = Date.now() + 600000; // 10 minutes
       await user.save();
 
+      console.log(process.env.EMAIL, process.env.EMAIL_PASSWORD);
       // Email configuration
       const transporter = nodemailer.createTransport({
         service: "gmail",
