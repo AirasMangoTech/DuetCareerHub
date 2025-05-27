@@ -8,7 +8,7 @@ const postSchema = new mongoose.Schema(
     },
     creator: {
       type: String,
-      enums: ["User", "Faculty", "Alumni"],
+      enum: ["User", "Faculty", "Alumni"],
     },
     image: String,
     title: String,

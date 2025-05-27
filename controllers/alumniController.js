@@ -4,8 +4,11 @@ const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const { paginateData } = require("../utils/helper");
+const post = require("../models/post");
+const job = require("../models/job");
 
 // Create Alumni
+
 exports.createAlumni = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -198,20 +201,7 @@ exports.getAlumniById = async (req, res) => {
       status: true,
       responseCode: 200,
       message: "Alumni fetched successfully!",
-      data: {
-        _id: alumni._id,
-        name: alumni.name,
-        lastname: alumni.lastname,
-        rollNumber: alumni.rollNumber,
-        graduationYear: alumni.graduationYear,
-        degree: alumni.degree,
-        currentJobTitle: alumni.currentJobTitle,
-        companyName: alumni.companyName,
-        contactNumber: alumni.contactNumber,
-        email: alumni.email,
-        user_type: "alumni",
-        department: alumni.department,
-      },
+      data: alumni,
     });
   } catch (error) {
     res.status(400).json({
@@ -321,5 +311,18 @@ exports.getAlumniStats = async (req, res) => {
       responseCode: 500,
       message: error.message,
     });
+  }
+};
+
+exports.dashbaord = async (req, res) => {
+  try {
+    const findPosts = await post.find().populate("user").limit(10);
+    const findJobs = await job.find().populate("user").limit(2);
+    res.send({
+      posts: findPosts,
+      jobs: findJobs,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error?.message });
   }
 };

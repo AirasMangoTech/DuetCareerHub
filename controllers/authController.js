@@ -6,8 +6,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
-require('dotenv').config()
-
+require("dotenv").config();
 
 // Helper function to get user by email
 const getUserByEmail = async (email) => {
@@ -35,7 +34,7 @@ exports.login = async (req, res) => {
     const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     if (user.role !== "admin") {
