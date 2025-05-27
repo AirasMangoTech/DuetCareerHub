@@ -9,7 +9,8 @@ module.exports.addPost = async (req, res) => {
 
     const createPost = await post.create({
       user: user?._id,
-      creator: user?.role,
+      creator: user?.role.charAt(0).toUpperCase() + user?.role.slice(1),
+
       ...req.body,
     });
     res.status(200).json({ data: createPost });

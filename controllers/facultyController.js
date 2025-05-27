@@ -29,6 +29,7 @@ exports.createFaculty = async (req, res) => {
       contactNumber,
       email,
       password,
+      academicDetails,
     } = req.body;
 
     // Check if email already exists
@@ -42,8 +43,10 @@ exports.createFaculty = async (req, res) => {
     }
 
     // Check if departments exist
-    const departments = await Department.find({ _id: { $in: department } });
-    if (departments.length !== department.length) {
+    const departments = await Department.find({
+      _id: { $in: academicDetails.department },
+    });
+    if (departments.length !== academicDetails.department.length) {
       return res.status(400).json({
         status: false,
         responseCode: 400,
@@ -61,6 +64,7 @@ exports.createFaculty = async (req, res) => {
       contactNumber,
       email,
       password: hashedPassword,
+      academicDetails,
     });
     await faculty.save();
 
@@ -73,15 +77,7 @@ exports.createFaculty = async (req, res) => {
       status: true,
       responseCode: 200,
       message: "Faculty created successfully!",
-      data: {
-        _id: populatedFaculty._id,
-        first_name: populatedFaculty.name,
-        last_name: populatedFaculty.lastname,
-        email: populatedFaculty.email,
-        phone: populatedFaculty.contactNumber,
-        user_type: "faculty",
-        department: populatedFaculty.department, // Include department details
-      },
+      data: populatedFaculty,
     });
   } catch (error) {
     res.status(400).json({

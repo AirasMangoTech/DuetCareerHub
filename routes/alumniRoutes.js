@@ -1,9 +1,13 @@
 const express = require("express");
 const { body } = require("express-validator");
 const alumniController = require("../controllers/alumniController");
+const { verifyToken } = require("../middlewares/tokenVerify");
 const router = express.Router();
 
 // Create Alumni
+
+router.get("/dashboard", verifyToken, alumniController.dashbaord);
+
 router.post(
   "/create",
   [

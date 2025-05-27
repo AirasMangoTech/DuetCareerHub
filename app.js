@@ -20,7 +20,9 @@ const authRoutes = require("./routes/authRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const postRoutes = require("./routes/post");
+const jobRoutes = require("./routes/job");
 const connectDB = require("./config/db");
+
 require("events").EventEmitter.defaultMaxListeners = 15;
 
 dotenv.config();
@@ -71,6 +73,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api", statsRoutes);
 app.use("/api/system", uploadRoutes);
 app.use("/api/post", postRoutes);
+app.use("/api/job", jobRoutes);
 
 app.get("/get", async (req, res) => {
   res.send("backend is running");
