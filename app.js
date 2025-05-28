@@ -76,7 +76,7 @@ app.use("/api/post", postRoutes);
 app.use("/api/job", jobRoutes);
 
 app.get("/get", async (req, res) => {
-  res.send("backend is sure running");
+  res.send("backend is sure running:)");
   console.log("backend is running");
 });
 module.exports = app;
