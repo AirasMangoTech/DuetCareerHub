@@ -37,7 +37,12 @@ app.use("/uploads/", express.static("uploads"));
 // Enable CORS
 app.use(
   cors({
-    origin: ["http://localhost:3003", "http://localhost:5173"],
+    origin: [
+      "http://localhost:3003",
+      "http://localhost:5173",
+      "https://duet-hub.vercel.app/",
+      "https://duet-hub.surge.sh/login",
+    ],
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
   })
