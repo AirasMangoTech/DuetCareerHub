@@ -41,7 +41,7 @@ app.use(
       "http://localhost:3003",
       "http://localhost:5173",
       "https://duet-hub.vercel.app/",
-      "https://duet-hub.surge.sh/login",
+      "https://duet-hub.surge.sh",
     ],
     methods: "GET,POST,PUT,DELETE",
     credentials: true,
