@@ -109,3 +109,18 @@ exports.myJobs = async (req, res) => {
     });
   }
 };
+
+exports.Jobs   = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query;
+  try {
+    const myJobs = await paginateData(job, page, limit, { });
+
+    res.send(myJobs);
+  } catch (error) {
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message,
+    });
+  }
+};
