@@ -98,7 +98,7 @@ exports.myJobs = async (req, res) => {
   const user = req.user._id;
   const { page = 1, limit = 10 } = req.query;
   try {
-    const myJobs = await paginateData(job, page, limit, {});
+    const myJobs = await paginateData(job, page, limit, { user });
 
     res.send(myJobs);
   } catch (error) {
