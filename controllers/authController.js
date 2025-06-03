@@ -21,7 +21,7 @@ const getUserByEmail = async (email) => {
 };
 
 // Login Controller
-exports.login = async (req, res) => {  
+exports.login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
@@ -67,7 +67,7 @@ exports.login = async (req, res) => {
 
       const token = jwt.sign(
         { _id: user._id, role: user.role },
-        process.env.JWT_SECRET,
+        process.env.JWT_SECRET
       );
 
       res.status(200).json({
@@ -102,7 +102,6 @@ exports.verify = async (req, res) => {
     const token = jwt.sign(
       { _id: user._id, role: user.role },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
     );
 
     res.status(200).json({
