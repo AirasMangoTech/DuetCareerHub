@@ -110,10 +110,23 @@ exports.myJobs = async (req, res) => {
   }
 };
 
-exports.Jobs   = async (req, res) => {
+exports.Jobs = async (req, res) => {
   const { page = 1, limit = 10 } = req.query;
   try {
-    const myJobs = await paginateData(job, page, limit, { });
+    const populateOptions = [
+      {
+        path: "user",
+      },
+    ];
+
+    const myJobs = await paginateData(
+      job,
+      page,
+      limit,
+      {},
+      null,
+      populateOptions
+    );
 
     res.send(myJobs);
   } catch (error) {

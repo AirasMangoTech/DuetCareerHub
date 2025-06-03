@@ -5,6 +5,7 @@ const multer = require("multer");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const { paginateData } = require("../utils/helper");
+const Resume = require("../models/Resume");
 
 // Configure multer for file uploads
 const storage = multer.memoryStorage();
@@ -122,6 +123,75 @@ exports.createUser = async (req, res) => {
   }
 };
 
+exports.uploadResume = async (req, res) => {
+  const user = req.user._id;
+  try {
+    const alreadyExists = await Resume.findOne({
+      user: user,
+    });
+    if (alreadyExists) {
+      const updatedResume = await Resume.findOneAndUpdate(
+        { user: user },
+        {
+          $set: {
+            personalInfo: req.body.personalInfo,
+            educationalBackground: req.body.educationalBackground,
+            workExperience: req.body.workExperience,
+          },
+        },
+        { new: true }
+      );
+      res.status(200).json({
+        status: true,
+        responseCode: 200,
+        message: "Resume updated successfully!",
+        data: updatedResume,
+      });
+    } else {
+      const newResume = new Resume({
+        user: user,
+        personalInfo: req.body.personalInfo,
+        educationalBackground: req.body.educationalBackground,
+        workExperience: req.body.workExperience,
+      });
+
+      const savedResume = await newResume.save();
+      res.status(201).json({
+        status: true,
+        responseCode: 201,
+        message: "Resume created successfully!",
+        data: savedResume,
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message,
+    });
+  }
+};
+exports.myResume = async (req, res) => {
+  const user = req.user._id;
+  try {
+    const myResume = await Resume.findOne({
+      user: user,
+    });
+
+    res.status(201).json({
+      status: true,
+      responseCode: 200,
+      data: myResume,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message,
+    });
+  }
+};
+
 // Get All Users (with Pagination and Search)
 exports.getAllUsers = async (req, res) => {
   let { page = 1, limit = 10, search = "" } = req.query;
@@ -202,7 +272,7 @@ exports.updateUser = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
-    
+
     const updatedUser = await User.findByIdAndUpdate(id, updateData, {
       new: true,
     })
