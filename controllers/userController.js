@@ -137,6 +137,7 @@ exports.uploadResume = async (req, res) => {
             personalInfo: req.body.personalInfo,
             educationalBackground: req.body.educationalBackground,
             workExperience: req.body.workExperience,
+            resumeUrl: req.body.resumeUrl,
           },
         },
         { new: true }
@@ -153,6 +154,7 @@ exports.uploadResume = async (req, res) => {
         personalInfo: req.body.personalInfo,
         educationalBackground: req.body.educationalBackground,
         workExperience: req.body.workExperience,
+        resumeUrl: req.body.resumeUrl,
       });
 
       const savedResume = await newResume.save();
