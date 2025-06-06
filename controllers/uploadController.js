@@ -6,7 +6,7 @@ module.exports.postUpload = async (req, res) => {
     const response = {};
 
     if (documentFile) {
-      response.documentUrl = documentFile.filename;
+      response.document = documentFile.filename;
     }
 
     if (resumeFile) {
