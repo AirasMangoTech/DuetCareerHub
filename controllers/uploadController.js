@@ -1,10 +1,19 @@
 module.exports.postUpload = async (req, res) => {
   try {
-    const imageUrl = req.file.filename;
+    const documentFile = req.files["document"]?.[0];
+    const resumeFile = req.files["resume"]?.[0];
 
-    res.send({
-      url: imageUrl,
-    });
+    const response = {};
+
+    if (documentFile) {
+      response.documentUrl = documentFile.filename;
+    }
+
+    if (resumeFile) {
+      response.resumeUrl = resumeFile.filename;
+    }
+
+    res.send(response);
   } catch (error) {
     res.status(400).json({
       status: false,
