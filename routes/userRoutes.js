@@ -7,7 +7,7 @@ const { verifyUser } = require("../middlewares/tokenVerify");
 // Create User (Register)
 router.post(
   "/create",
-  userController.uploadResume,
+  // userController.uploadResume,
   [
     body("name").notEmpty().withMessage("Name is required"),
     body("lastName").notEmpty().withMessage("Last Name is required"),

@@ -12,7 +12,6 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Middleware to handle file upload
-exports.uploadResume = upload.single("resume");
 
 // Create User (Registration)
 exports.createUser = async (req, res) => {
