@@ -21,7 +21,7 @@ router.get("/",Jobs);
 
 // resume jobs
 
-router.get("/resume-jobs/:jobTitle", verifyToken, resumeJobs);
+router.get("/resume-jobs/:jobTitle",  resumeJobs);
 
 
 
