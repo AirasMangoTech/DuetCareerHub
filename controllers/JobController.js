@@ -2,8 +2,8 @@ const job = require("../models/job");
 const Resume = require("../models/Resume");
 const { paginateData } = require("../utils/helper");
 const { OpenAI } = require("openai");
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+// const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+// const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 const getSkillsFromJobTitle = async (jobTitle) => {
   const prompt = `Extract the core technical skills required for this job title: "${jobTitle}". Return the skills as a JavaScript array like ["html", "css", "javascript"].`;
