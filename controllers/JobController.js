@@ -6,6 +6,7 @@ const { OpenAI } = require("openai");
 // const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
 const getSkillsFromJobTitle = async (jobTitle) => {
+    
   const prompt = `Extract the core technical skills required for this job title: "${jobTitle}". Return the skills as a JavaScript array like ["html", "css", "javascript"].`;
 
   const response = await openai.chat.completions.create({
