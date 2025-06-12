@@ -20,16 +20,18 @@ const sendNotification = async ({
     receiverId: id,
     type: "general",
   }));
+  
 
   // Save all in DB
   const savedNotifications = await Notification.insertMany(notifications);
 
   // Emit to each receiver
   receiverIds.forEach((id) => {
+    console.log(id.toString(),"<id.toString()");
+    
     io.to(id.toString()).emit("notification", {
       title,
       description,
-      senderId,
       receiverId: id,
     });
   });

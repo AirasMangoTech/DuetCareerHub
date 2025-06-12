@@ -5,13 +5,14 @@ const router = express.Router();
 router.post("/", async (req, res) => {
   const { title, description, receiverId } = req.body;
   try {
+   
+    
     const savedNotifications = await sendNotification({
       req,
       title,
       description,
-      receiverId: Array.isArray(receiverId) ? receiverId : [receiverId],
+      receiverIds: Array.isArray(receiverId) ? receiverId : [receiverId],
     });
-    console.log(savedNotifications);
     res.status(200).json({
       message: "Notifications sent successfully",
       notifications: savedNotifications,

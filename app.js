@@ -34,7 +34,15 @@ const app = express();
 
 // Middleware to parse JSON requests
 app.use(express.json());
-
+app.use((req, res, next) => {
+  const io = app.get("io");
+  if (!io) {
+    console.error("⚠ Socket.io not available in app context");
+  } else {
+    req.io = io;
+  }
+  next();
+});
 app.use(express.urlencoded({ extended: true }));
 app.use("/public", express.static("public"));
 app.use("/uploads/", express.static("uploads"));
@@ -71,6 +79,7 @@ app.use(
 app.use(cookieParser());
 
 // Routes
+ 
 
 app.use("/api/admin", adminRoutes);
 app.use("/api/alumni", alumniRoutes);
