@@ -14,26 +14,23 @@ const sendNotification = async ({
     return;
   }
 
-  const notifications = receiverIds.map((id) => ({
+  const notifications = receiverIds.map((data) => ({
     title,
     description,
-    receiverId: id,
+    receiverId: data._id,
+    creator: data.role,
     type: "general",
   }));
-  
 
   // Save all in DB
   const savedNotifications = await Notification.insertMany(notifications);
 
   // Emit to each receiver
   receiverIds.forEach((id) => {
-    console.log(id.toString(),"<id.toString()");
-    
-    io.to(id.toString()).emit("notification", {
-      title,
-      description,
-      receiverId: id,
-    });
+    const myNotifications = savedNotifications.find(
+      (notification) => notification.receiverId.toString() === id.toString()
+    );
+    io.to(id.toString()).emit("notification", myNotifications);
   });
 
   console.log("🔔 General notifications sent & saved.");

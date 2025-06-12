@@ -1,7 +1,8 @@
 const job = require("../models/job");
 const Resume = require("../models/Resume");
-const { paginateData } = require("../utils/helper");
+const { paginateData, getAllReceiverIds } = require("../utils/helper");
 const { OpenAI } = require("openai");
+const sendNotification = require("../utils/notification");
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
 
@@ -31,13 +32,24 @@ const getSkillsFromJobTitle = async (jobTitle) => {
 
 exports.createJob = async (req, res) => {
   const user = req.user;
-
+  const { name, description } = req.body;
   try {
     const createJob = await job.create({
       ...req.body,
       user: user?._id,
       creator: user?.role.charAt(0).toUpperCase() + user?.role.slice(1),
     });
+    getAllReceiverIds()
+      .then((receivers) => {
+        sendNotification({
+          req,
+          title: name,
+          description,
+          receiverIds: receivers,
+        }).catch((err) => console.error("Notification error:", err));
+      })
+      .catch((err) => console.error("Receiver fetch error:", err));
+
     res.status(200).json({
       status: true,
       responseCode: 200,
@@ -172,18 +184,19 @@ exports.resumeJobs = async (req, res) => {
     const inferredSkills = await getSkillsFromJobTitle(jobTitle); // OpenAI call
     console.log(inferredSkills, " ← extracted skills");
 
-    const resumes = await Resume.find({},"-createdAt -updatedAt -__v");
+    const resumes = await Resume.find({}, "-createdAt -updatedAt -__v");
     const matchedResumes = resumes.filter((resume) => {
-  const skills = resume.educationalBackground.skills.map((skill) =>
-    skill.toLowerCase()
-  );
+      const skills = resume.educationalBackground.skills.map((skill) =>
+        skill.toLowerCase()
+      );
 
-  return inferredSkills.some((keyword) => {
-    const keywordPattern = new RegExp(keyword.toLowerCase().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')); // escape regex special characters
-    return skills.some((skill) => keywordPattern.test(skill));
-  });
-});
-
+      return inferredSkills.some((keyword) => {
+        const keywordPattern = new RegExp(
+          keyword.toLowerCase().replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&")
+        ); // escape regex special characters
+        return skills.some((skill) => keywordPattern.test(skill));
+      });
+    });
 
     res.status(200).json({
       status: true,
@@ -198,5 +211,3 @@ exports.resumeJobs = async (req, res) => {
     });
   }
 };
-
-

@@ -26,6 +26,7 @@ const jobRoutes = require("./routes/job");
 const connectDB = require("./config/db");
 const initializeSocket = require("./socket");
 const notifyRoutes = require("./routes/notification");
+const { getAllModelIds } = require("./utils/helper");
 
 require("events").EventEmitter.defaultMaxListeners = 15;
 
@@ -100,7 +101,9 @@ app.use("/api/job", jobRoutes);
 app.use("/api/notify", notifyRoutes);
 
 app.get("/get", async (req, res) => {
+ const data =  await getAllModelIds()
   res.send("backend is sure running :)");
+  
   console.log("backend is running");
 });
 module.exports = app;

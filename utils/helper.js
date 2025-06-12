@@ -1,3 +1,7 @@
+const User = require("../models/User");
+const Alumni = require("../models/Alumni");
+const Faculty = require("../models/Faculty");
+
 module.exports.paginateData = async (
   model,
   page = 1,
@@ -5,12 +9,12 @@ module.exports.paginateData = async (
   query = {},
   fields = null,
   populateOptions = [],
-  noSort=false
+  noSort = false
 ) => {
   try {
     const skip = (page - 1) * limit;
-    let sortquery = { createdAt: -1 }
-    if(noSort) sortquery = {}
+    let sortquery = { createdAt: -1 };
+    if (noSort) sortquery = {};
     // Start the query with the provided model and query
     let queryBuilder = model
       .find(query)
@@ -44,5 +48,33 @@ module.exports.paginateData = async (
     return result;
   } catch (error) {
     throw new Error("Pagination error: " + error.message);
+  }
+};
+
+module.exports.getAllReceiverIds = async () => {
+  try {
+    const [users, alumni, faculty] = await Promise.all([
+      User.find({ email: { $exists: true } }, "_id"),
+      Alumni.find({ email: { $exists: true } }, "_id"),
+      Faculty.find({ email: { $exists: true } }, "_id"),
+    ]);
+
+    const userIds = users.map((doc) => ({
+      _id: doc._id.toString(),
+      role: "User",
+    }));
+    const alumniIds = alumni.map((doc) => ({
+      _id: doc._id.toString(),
+      role: "Alumni",
+    }));
+    const facultyIds = faculty.map((doc) => ({
+      _id: doc._id.toString(),
+      role: "Faculty",
+    }));
+
+    return [...userIds, ...alumniIds, ...facultyIds];
+  } catch (error) {
+    console.error("Error fetching model IDs with roles:", error);
+    return [];
   }
 };

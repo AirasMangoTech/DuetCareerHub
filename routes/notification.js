@@ -1,26 +1,16 @@
 const express = require("express");
-const sendNotification = require("../utils/notification");
+const {
+  addNotification,
+  getNotification,
+  getNotificationById,
+  deleteNotification,
+} = require("../controllers/notification");
+const { verifyToken } = require("../middlewares/tokenVerify");
 const router = express.Router();
 
-router.post("/", async (req, res) => {
-  const { title, description, receiverId } = req.body;
-  try {
-   
-    
-    const savedNotifications = await sendNotification({
-      req,
-      title,
-      description,
-      receiverIds: Array.isArray(receiverId) ? receiverId : [receiverId],
-    });
-    res.status(200).json({
-      message: "Notifications sent successfully",
-      notifications: savedNotifications,
-    });
-  } catch (error) {
-    console.error("Error in notification route:", error);
-    res.status(500).json({ message: error.message });
-  }
-});
+router.post("/", addNotification);
+router.get("/", verifyToken, getNotification);
+router.get("/:id", verifyToken, getNotificationById);
+router.delete("/:id", verifyToken, deleteNotification);
 
 module.exports = router;
