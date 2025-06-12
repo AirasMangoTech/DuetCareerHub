@@ -1,5 +1,33 @@
 const job = require("../models/job");
+const Resume = require("../models/Resume");
 const { paginateData } = require("../utils/helper");
+const { OpenAI } = require("openai");
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+
+const getSkillsFromJobTitle = async (jobTitle) => {
+  const prompt = `Extract the core technical skills required for this job title: "${jobTitle}". Return the skills as a JavaScript array like ["html", "css", "javascript"].`;
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-3.5-turbo",
+    messages: [
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+  });
+
+  try {
+    // Try parsing the array if response is JSON-like
+    const text = response.choices[0].message.content.trim();
+    const skills = JSON.parse(text);
+    return skills.map((s) => s.toLowerCase());
+  } catch (err) {
+    console.error("Error parsing OpenAI response:", err.message);
+    return [];
+  }
+};
 
 exports.createJob = async (req, res) => {
   const user = req.user;
@@ -137,3 +165,38 @@ exports.Jobs = async (req, res) => {
     });
   }
 };
+
+exports.resumeJobs = async (req, res) => {
+  const { jobTitle } = req.params;
+  try {
+    const inferredSkills = await getSkillsFromJobTitle(jobTitle); // OpenAI call
+    console.log(inferredSkills, " ← extracted skills");
+
+    const resumes = await Resume.find({});
+    const matchedResumes = resumes.filter((resume) => {
+  const skills = resume.educationalBackground.skills.map((skill) =>
+    skill.toLowerCase()
+  );
+
+  return inferredSkills.some((keyword) => {
+    const keywordPattern = new RegExp(keyword.toLowerCase().replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')); // escape regex special characters
+    return skills.some((skill) => keywordPattern.test(skill));
+  });
+});
+
+
+    res.status(200).json({
+      status: true,
+      responseCode: 200,
+      matchedResumes,
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: false,
+      responseCode: 400,
+      message: error.message,
+    });
+  }
+};
+
+
