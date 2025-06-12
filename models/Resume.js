@@ -45,6 +45,7 @@ const resumeSchema = new mongoose.Schema(
         responsibilities: String,
       },
     ],
+    resumeUrl: String,
   },
   {
     timestamps: true,

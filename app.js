@@ -1,4 +1,6 @@
 const express = require("express");
+const http = require("http");
+
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
@@ -22,6 +24,8 @@ const uploadRoutes = require("./routes/uploadRoutes");
 const postRoutes = require("./routes/post");
 const jobRoutes = require("./routes/job");
 const connectDB = require("./config/db");
+const initializeSocket = require("./socket");
+const notifyRoutes = require("./routes/notification");
 
 require("events").EventEmitter.defaultMaxListeners = 15;
 
@@ -30,6 +34,7 @@ const app = express();
 
 // Middleware to parse JSON requests
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: true }));
 app.use("/public", express.static("public"));
 app.use("/uploads/", express.static("uploads"));
@@ -53,11 +58,20 @@ const limiter = rateLimit({
 app.use(limiter);
 
 connectDB();
-
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    credentials: true,
+  })
+);
 // Use cookie-parser middleware
 app.use(cookieParser());
 
 // Routes
+
 app.use("/api/admin", adminRoutes);
 app.use("/api/alumni", alumniRoutes);
 app.use("/api/user", userRoutes);
@@ -74,6 +88,7 @@ app.use("/api", statsRoutes);
 app.use("/api/system", uploadRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/job", jobRoutes);
+app.use("/api/notify", notifyRoutes);
 
 app.get("/get", async (req, res) => {
   res.send("backend is sure running :((");

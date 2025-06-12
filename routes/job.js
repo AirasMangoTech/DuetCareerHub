@@ -1,12 +1,14 @@
 const express = require("express");
+
+const { verifyToken } = require("../middlewares/tokenVerify");
 const {
   createJob,
   updateJob,
   deleteJob,
   myJobs,
   Jobs,
-} = require("../controllers/job");
-const { verifyToken } = require("../middlewares/tokenVerify");
+  resumeJobs,
+} = require("../controllers/JobController");
 
 const router = express.Router();
 
@@ -15,6 +17,8 @@ router.put("/:id", verifyToken, updateJob);
 router.delete("/:id", verifyToken, deleteJob);
 router.get("/my-jobs", verifyToken, myJobs);
 router.get("/",      Jobs);
-// Example: GET /jobs/:id
+// resume jobs
+
+router.get("/resume-jobs/:jobTitle", resumeJobs);
 
 module.exports = router;
