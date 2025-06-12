@@ -1,9 +1,11 @@
 const post = require("../models/post");
-const { paginateData } = require("../utils/helper");
+const { paginateData, getAllReceiverIds } = require("../utils/helper");
+const sendNotification = require("../utils/notification");
 const { postValidationSchema } = require("../utils/validation");
 
 module.exports.addPost = async (req, res) => {
   const user = req.user;
+  const { title, description } = req.body;
   try {
     await postValidationSchema.validateAsync(req.body);
 
@@ -13,6 +15,16 @@ module.exports.addPost = async (req, res) => {
 
       ...req.body,
     });
+    getAllReceiverIds()
+      .then((receivers) => {
+        sendNotification({
+          req,
+          title,
+          description,
+          receiverIds: receivers,
+        }).catch((err) => console.error("Notification error:", err));
+      })
+      .catch((err) => console.error("Receiver fetch error:", err));
     res.status(200).json({ data: createPost });
   } catch (error) {
     res.status(500).json({ error: error.message });

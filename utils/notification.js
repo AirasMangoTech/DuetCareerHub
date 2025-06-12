@@ -9,6 +9,9 @@ const sendNotification = async ({
   receiverIds = [],
 }) => {
   const io = req.io;
+  console.log("🔔 Sending general notifications...");
+  console.log(io);
+
   if (!io) {
     console.error("Socket.io not available in request");
     return;

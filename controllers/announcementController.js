@@ -1,11 +1,22 @@
 const Announcement = require("../models/Announcement");
-const { paginateData } = require("../utils/helper");
+const { paginateData, getAllReceiverIds } = require("../utils/helper");
+const sendNotification = require("../utils/notification");
 
 // Create Announcement
 exports.createAnnouncement = async (req, res) => {
   try {
     const { title, description, date } = req.body;
     const announcement = new Announcement({ title, description, date });
+    getAllReceiverIds()
+      .then((receivers) => {
+        sendNotification({
+          req,
+          title,
+          description,
+          receiverIds: receivers,
+        }).catch((err) => console.error("Notification error:", err));
+      })
+      .catch((err) => console.error("Receiver fetch error:", err));
     await announcement.save();
     res.status(200).json({
       status: true,

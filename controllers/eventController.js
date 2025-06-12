@@ -1,5 +1,6 @@
 const Event = require("../models/Event");
-const { paginateData } = require("../utils/helper");
+const { paginateData, getAllReceiverIds } = require("../utils/helper");
+const sendNotification = require("../utils/notification");
 
 // Create Event
 exports.createEvent = async (req, res) => {
@@ -13,18 +14,21 @@ exports.createEvent = async (req, res) => {
       imageUrl, // Store image URL directly
     });
     await event.save();
+    getAllReceiverIds()
+      .then((receivers) => {
+        sendNotification({
+          req,
+          title,
+          description,
+          receiverIds: receivers,
+        }).catch((err) => console.error("Notification error:", err));
+      })
+      .catch((err) => console.error("Receiver fetch error:", err));
     res.status(200).json({
       status: true,
       responseCode: 200,
       message: "Event created successfully!",
-      data: {
-        _id: event._id,
-        title: event.title,
-        description: event.description,
-        address: event.address,
-        date: event.date,
-        imageUrl: event.imageUrl,
-      },
+      data: event,
     });
   } catch (error) {
     res.status(400).json({
