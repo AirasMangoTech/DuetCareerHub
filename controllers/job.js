@@ -172,7 +172,7 @@ exports.resumeJobs = async (req, res) => {
     const inferredSkills = await getSkillsFromJobTitle(jobTitle); // OpenAI call
     console.log(inferredSkills, " ← extracted skills");
 
-    const resumes = await Resume.find({});
+    const resumes = await Resume.find({},"-createdAt -updatedAt -__v");
     const matchedResumes = resumes.filter((resume) => {
   const skills = resume.educationalBackground.skills.map((skill) =>
     skill.toLowerCase()
