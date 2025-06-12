@@ -13,7 +13,7 @@ const getSkillsFromJobTitle = async (jobTitle) => {
     messages: [
       {
         role: "user",
-        content: prompt,
+        content: prompt, 
       },
     ],
   });
