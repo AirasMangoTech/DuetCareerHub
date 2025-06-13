@@ -9,6 +9,7 @@ const sendNotification = async ({
   receiverIds = [],
 }) => {
   const io = req.io;
+
   console.log("🔔 Sending general notifications...");
   console.log(io);
 
@@ -29,11 +30,14 @@ const sendNotification = async ({
   const savedNotifications = await Notification.insertMany(notifications);
 
   // Emit to each receiver
-  receiverIds.forEach((id) => {
+  receiverIds.forEach((data) => {
     const myNotifications = savedNotifications.find(
-      (notification) => notification.receiverId.toString() === id.toString()
+      (notification) =>
+        notification.receiverId.toString() === data?._id.toString()
     );
-    io.to(id.toString()).emit("notification", myNotifications);
+    console.log(`🔔 Emitting notification to ${data?._id}:`, myNotifications);
+
+    io.to(data?._id.toString()).emit("notification", myNotifications);
   });
 
   console.log("🔔 General notifications sent & saved.");
