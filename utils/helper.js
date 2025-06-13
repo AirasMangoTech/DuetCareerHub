@@ -51,7 +51,7 @@ module.exports.paginateData = async (
   }
 };
 
-module.exports.getAllReceiverIds = async () => {
+module.exports.getAllReceiverIds = async (excludedId) => {
   try {
     const [users, alumni, faculty] = await Promise.all([
       User.find({ email: { $exists: true } }, "_id"),
@@ -72,7 +72,14 @@ module.exports.getAllReceiverIds = async () => {
       role: "Faculty",
     }));
 
-    return [...userIds, ...alumniIds, ...facultyIds];
+    let allIds = [...userIds, ...alumniIds, ...facultyIds];
+
+    // Only filter if excludedId is provided
+    if (excludedId) {
+      allIds = allIds.filter((item) => item._id !== excludedId.toString());
+    }
+
+    return allIds;
   } catch (error) {
     console.error("Error fetching model IDs with roles:", error);
     return [];

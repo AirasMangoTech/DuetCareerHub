@@ -39,7 +39,7 @@ exports.createJob = async (req, res) => {
       user: user?._id,
       creator: user?.role.charAt(0).toUpperCase() + user?.role.slice(1),
     });
-    getAllReceiverIds()
+    getAllReceiverIds(user?._id)
       .then((receivers) => {
         console.log("ok");
 
