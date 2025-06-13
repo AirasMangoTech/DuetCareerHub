@@ -18,7 +18,7 @@ exports.createEvent = async (req, res) => {
       .then((receivers) => {
         sendNotification({
           req,
-          title,
+          title: "Admin Created A New Event",
           description,
           receiverIds: receivers,
         }).catch((err) => console.error("Notification error:", err));

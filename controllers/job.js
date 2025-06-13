@@ -1,6 +1,10 @@
 const job = require("../models/job");
 const Resume = require("../models/Resume");
-const { paginateData, getAllReceiverIds } = require("../utils/helper");
+const {
+  paginateData,
+  getAllReceiverIds,
+  userData,
+} = require("../utils/helper");
 const { OpenAI } = require("openai");
 const sendNotification = require("../utils/notification");
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -34,6 +38,7 @@ exports.createJob = async (req, res) => {
   const user = req.user;
   const { name, description } = req.body;
   try {
+    const findUser = await userData(user?._id, "name");
     const createJob = await job.create({
       ...req.body,
       user: user?._id,
@@ -45,7 +50,7 @@ exports.createJob = async (req, res) => {
 
         sendNotification({
           req,
-          title: name,
+          title: `${findUser?.name} Has Created A New Job`,
           description,
           receiverIds: receivers,
         }).catch((err) => console.error("Notification error:", err));

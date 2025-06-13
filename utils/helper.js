@@ -51,6 +51,20 @@ module.exports.paginateData = async (
   }
 };
 
+module.exports.userData = async (id, fields) => {
+  try {
+    const data =
+      (await User.findById(id, fields)) ||
+      Alumni.findById(id, fields) ||
+      Faculty.findById(id, fields);
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return null;
+  }
+};
+
 module.exports.getAllReceiverIds = async (excludedId) => {
   try {
     const [users, alumni, faculty] = await Promise.all([

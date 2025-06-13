@@ -6,12 +6,14 @@ const sendNotification = require("../utils/notification");
 exports.createAnnouncement = async (req, res) => {
   try {
     const { title, description, date } = req.body;
+    const findUser = await userData(user?._id, "name");
+
     const announcement = new Announcement({ title, description, date });
     getAllReceiverIds()
       .then((receivers) => {
         sendNotification({
           req,
-          title,
+          title: "Admin Announced A New Announcement",
           description,
           receiverIds: receivers,
         }).catch((err) => console.error("Notification error:", err));

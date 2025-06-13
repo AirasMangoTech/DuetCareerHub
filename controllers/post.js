@@ -1,5 +1,9 @@
 const post = require("../models/post");
-const { paginateData, getAllReceiverIds } = require("../utils/helper");
+const {
+  paginateData,
+  getAllReceiverIds,
+  userData,
+} = require("../utils/helper");
 const sendNotification = require("../utils/notification");
 const { postValidationSchema } = require("../utils/validation");
 
@@ -7,6 +11,8 @@ module.exports.addPost = async (req, res) => {
   const user = req.user;
   const { title, description } = req.body;
   try {
+    const findUser = await userData(user?._id, "name");
+
     await postValidationSchema.validateAsync(req.body);
 
     const createPost = await post.create({
@@ -19,7 +25,7 @@ module.exports.addPost = async (req, res) => {
       .then((receivers) => {
         sendNotification({
           req,
-          title,
+          title: `${findUser?.name} Has Created A New Post`,
           description,
           receiverIds: receivers,
         }).catch((err) => console.error("Notification error:", err));
