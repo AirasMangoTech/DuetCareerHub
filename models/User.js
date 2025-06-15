@@ -62,6 +62,7 @@ const userSchema = new mongoose.Schema(
     ],
 
     portfolioURL: String,
+    resumeUrl: String,
 
     // achievements: [String],
     // certifications: [String],

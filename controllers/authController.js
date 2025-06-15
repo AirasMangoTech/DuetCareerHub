@@ -7,6 +7,8 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 require("dotenv").config();
+const path = require("path");
+const fs = require("fs");
 
 // Helper function to get user by email
 const getUserByEmail = async (email) => {
@@ -46,21 +48,52 @@ exports.login = async (req, res) => {
 
       console.log(process.env.EMAIL, process.env.EMAIL_PASSWORD);
       // Email configuration
+      const templatePath = path.join(
+        __dirname,
+        "..",
+        "EmailTemplate",
+        "Email.html"
+      );
+
+      let emailTemplate = fs.readFileSync(templatePath, "utf8");
+      const [otp1, otp2, otp3, otp4] = otp.split("");
+
+      const personalizedHtml = emailTemplate
+        .replace("${otp1}", otp1)
+        .replace("${otp2}", otp2)
+        .replace("${otp3}", otp3)
+        .replace("${otp4}", otp4);
+
       const transporter = nodemailer.createTransport({
-        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false, // true for port 465, false for other ports
         auth: {
           user: process.env.EMAIL,
           pass: process.env.EMAIL_PASSWORD,
         },
       });
 
-      await transporter.sendMail({
-        to: user.email,
+      const mailOptions = {
         from: process.env.EMAIL,
+        to: email,
         subject: "Verification OTP",
-        text: `Your OTP for verification is ${otp} (valid for 10 minutes)`,
-      });
-      res.status(200).json({ codeSent: true, message: "OTP sent to email" });
+        html: personalizedHtml,
+      };
+
+      console.log(`Preparing to send email to: ${email}`);
+
+      try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`✅ Email sent to: ${email}`);
+        console.log(`Email response: ${info.response}`);
+        return res.status(200).json({ message: "OTP sent to email" });
+      } catch (error) {
+        console.error(`❌ Failed to send email to: ${email}`);
+        return res.status(400).json({ message: "Failed to send OTP" });
+
+        console.error(`Error: ${error.message}`);
+      }
     } else {
       const userResponse = user.toObject();
       delete userResponse.password;
@@ -101,7 +134,7 @@ exports.verify = async (req, res) => {
 
     const token = jwt.sign(
       { _id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET
     );
 
     res.status(200).json({
@@ -128,23 +161,52 @@ exports.forgetPassword = async (req, res) => {
     user.otpExpires = Date.now() + 600000; // 10 minutes
     await user.save();
 
-    // Email configuration
+    const templatePath = path.join(
+      __dirname,
+      "..",
+      "EmailTemplate",
+      "Email.html"
+    );
+
+    let emailTemplate = fs.readFileSync(templatePath, "utf8");
+    const [otp1, otp2, otp3, otp4] = otp.split("");
+
+    const personalizedHtml = emailTemplate
+      .replace("${otp1}", otp1)
+      .replace("${otp2}", otp2)
+      .replace("${otp3}", otp3)
+      .replace("${otp4}", otp4);
+
     const transporter = nodemailer.createTransport({
-      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false, // true for port 465, false for other ports
       auth: {
         user: process.env.EMAIL,
         pass: process.env.EMAIL_PASSWORD,
       },
     });
 
-    await transporter.sendMail({
-      to: user.email,
+    const mailOptions = {
       from: process.env.EMAIL,
-      subject: "Password Reset OTP",
-      text: `Your OTP for password reset is ${otp} (valid for 10 minutes)`,
-    });
+      to: email,
+      subject: "Verification OTP",
+      html: personalizedHtml,
+    };
 
-    res.status(200).json({ message: "OTP sent to email" });
+    console.log(`Preparing to send email to: ${email}`);
+
+    try {
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`✅ Email sent to: ${email}`);
+      console.log(`Email response: ${info.response}`);
+      return res.status(200).json({ message: "OTP sent to email" });
+    } catch (error) {
+      console.error(`❌ Failed to send email to: ${email}`);
+      return res.status(400).json({ message: "Failed to send OTP" });
+
+      console.error(`Error: ${error.message}`);
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

@@ -65,6 +65,13 @@ exports.getHome = async (req, res) => {
   const { page, limit } = req.query;
   try {
     let query = { profilePicture: { $exists: true } };
+    let userQuery = {
+      $and: [
+        { resumeUrl: { $exists: true, $ne: "" } },
+        { profilePicture: { $exists: true } },
+      ],
+    };
+
     const populateOpt = [
       {
         path: "department",
@@ -83,7 +90,7 @@ exports.getHome = async (req, res) => {
       User,
       page,
       limit,
-      query,
+      userQuery,
       "-password",
       populateOpt
     );

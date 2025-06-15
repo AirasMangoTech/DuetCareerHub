@@ -125,6 +125,7 @@ exports.createUser = async (req, res) => {
 exports.uploadResume = async (req, res) => {
   const user = req.user._id;
   try {
+    const findUser = await User.findById(user, "resumeUrl");
     const alreadyExists = await Resume.findOne({
       user: user,
     });
@@ -156,6 +157,8 @@ exports.uploadResume = async (req, res) => {
         resumeUrl: req.body.resumeUrl,
       });
 
+      findUser.resumeUrl = req.body.resumeUrl;
+      await findUser.save();
       const savedResume = await newResume.save();
       res.status(201).json({
         status: true,

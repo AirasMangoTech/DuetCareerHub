@@ -26,6 +26,7 @@ const jobRoutes = require("./routes/job");
 const connectDB = require("./config/db");
 const initializeSocket = require("./socket");
 const notifyRoutes = require("./routes/notification");
+const chatRoutes = require("./routes/chat");
 const { getAllModelIds } = require("./utils/helper");
 
 require("events").EventEmitter.defaultMaxListeners = 15;
@@ -80,7 +81,6 @@ app.use(
 app.use(cookieParser());
 
 // Routes
- 
 
 app.use("/api/admin", adminRoutes);
 app.use("/api/alumni", alumniRoutes);
@@ -99,11 +99,12 @@ app.use("/api/system", uploadRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/job", jobRoutes);
 app.use("/api/notify", notifyRoutes);
+app.use("/api/chat", chatRoutes);
 
 app.get("/get", async (req, res) => {
- const data =  await getAllModelIds()
+  const data = await getAllModelIds();
   res.send("backend is sure running :)");
-  
+
   console.log("backend is running");
 });
 module.exports = app;
