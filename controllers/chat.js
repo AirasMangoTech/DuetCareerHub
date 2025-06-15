@@ -83,7 +83,7 @@ exports.msgHistory = async (req, res) => {
 };
 
 exports.msgList = async (req, res) => {
-  const userId = new mongoose.Types.ObjectId("684c68eff5b4990e3b30b815");
+  const userId = new mongoose.Types.ObjectId(req.user._id);
 
   try {
     const chats = await chat.aggregate([
