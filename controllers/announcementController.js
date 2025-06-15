@@ -6,7 +6,6 @@ const sendNotification = require("../utils/notification");
 exports.createAnnouncement = async (req, res) => {
   try {
     const { title, description, date } = req.body;
-    const findUser = await userData(user?._id, "name");
 
     const announcement = new Announcement({ title, description, date });
     getAllReceiverIds()
