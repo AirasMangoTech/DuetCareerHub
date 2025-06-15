@@ -10,6 +10,7 @@ router.get("/", departmentController.getAllDepartments);
 router.post(
   "/create",
   [body("name").notEmpty().withMessage("Name is required")],
+  [body("Chairman_name").notEmpty().withMessage("Chairman Name is required")],
   departmentController.createDepartment
 );
 

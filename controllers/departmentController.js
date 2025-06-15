@@ -22,7 +22,7 @@ exports.getAllDepartments = async (req, res) => {
 // Create Department (optional, if you need to add departments)
 exports.createDepartment = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, Chairman_name } = req.body;
 
     // Check if department already exists
     const existingDepartment = await Department.findOne({ name });
@@ -34,7 +34,7 @@ exports.createDepartment = async (req, res) => {
       });
     }
 
-    const department = new Department({ name });
+    const department = new Department({ name, Chairman_name });
     await department.save();
     res.status(200).json({
       status: true,
@@ -53,12 +53,12 @@ exports.createDepartment = async (req, res) => {
 
 exports.updateDepartment = async (req, res) => {
   const { id } = req.params;
-  const { name } = req.body;
+  const { name, Chairman_name } = req.body;
 
   try {
     const department = await Department.findByIdAndUpdate(
       id,
-      { name },
+      { name, Chairman_name },
       { new: true }
     );
     if (!department) {
