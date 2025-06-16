@@ -169,6 +169,7 @@ exports.msgList = async (req, res) => {
           name: "$user.name",
           lastName: { $ifNull: ["$user.lastName", "$user.lastname"] },
           profileImage: "$user.profilePicture",
+          role: "$user.role", // ✅ Add this
         },
       },
     ]);
@@ -202,6 +203,7 @@ exports.msgList = async (req, res) => {
       lastMessage: chat.lastMessage,
       createdAt: chat.createdAt,
       unreadCount: unreadMap[chat._id.toString()] || 0,
+      role: chat.role, // ✅ Add this
     }));
 
     res.status(200).json({ data: finalList });

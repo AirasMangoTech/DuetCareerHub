@@ -6,6 +6,10 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const { paginateData } = require("../utils/helper");
 const Resume = require("../models/Resume");
+const post = require("../models/post");
+const job = require("../models/job");
+const notification = require("../models/notification");
+const chat = require("../models/chat");
 
 // Configure multer for file uploads
 const storage = multer.memoryStorage();
@@ -331,7 +335,11 @@ exports.deleteUser = async (req, res) => {
 
     // Delete the user
     await User.findByIdAndDelete(id);
-
+    await post.deleteMany({ user: id });
+    await job.deleteMany({ user: id });
+    await Resume.deleteMany({ user: id });
+    await notification.deleteMany({ receiverId: id });
+    await chat.deleteMany({ $or: [{ sender: id }, { receiver: id }] });
     res.status(200).json({
       status: true,
       responseCode: 200,

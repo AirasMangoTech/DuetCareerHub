@@ -6,6 +6,9 @@ const mongoose = require("mongoose");
 const { paginateData } = require("../utils/helper");
 const post = require("../models/post");
 const job = require("../models/job");
+const Resume = require("../models/Resume");
+const notification = require("../models/notification");
+const chat = require("../models/chat");
 
 // Create Alumni
 
@@ -271,6 +274,12 @@ exports.deleteAlumni = async (req, res) => {
 
     // Delete the alumni
     await Alumni.findByIdAndDelete(id);
+
+    await post.deleteMany({ user: id });
+    await job.deleteMany({ user: id });
+    await Resume.deleteMany({ user: id });
+    await notification.deleteMany({ receiverId: id });
+    await chat.deleteMany({ $or: [{ sender: id }, { receiver: id }] });
 
     res.status(200).json({
       status: true,
