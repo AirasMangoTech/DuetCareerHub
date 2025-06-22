@@ -78,13 +78,19 @@ exports.getHome = async (req, res) => {
         select: "name",
       },
     ];
+    const facPpulateOpt = [
+      {
+        path: "academicDetails.department",
+        select: "name",
+      },
+    ];
     const faculty = await paginateData(
       Faculty,
       page,
       limit,
       query,
       "-password",
-      populateOpt
+      facPpulateOpt
     );
     const users = await paginateData(
       User,

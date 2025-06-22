@@ -64,7 +64,7 @@ exports.msgHistory = async (req, res) => {
         path: "receiver",
         select: "profileImage name lastName email",
       },
-    ];
+    ];  
     const history = await paginateData(
       chat,
       page,
