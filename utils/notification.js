@@ -10,8 +10,6 @@ const sendNotification = async ({
 }) => {
   const io = req.io;
 
-  console.log("🔔 Sending general notifications...");
-  console.log(io);
 
   if (!io) {
     console.error("Socket.io not available in request");
@@ -35,7 +33,6 @@ const sendNotification = async ({
       (notification) =>
         notification.receiverId.toString() === data?._id.toString()
     );
-    console.log(`🔔 Emitting notification to ${data?._id}:`, myNotifications);
 
     io.to(data?._id.toString()).emit("notification", myNotifications);
   });

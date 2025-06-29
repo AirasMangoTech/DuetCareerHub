@@ -53,11 +53,9 @@ module.exports.paginateData = async (
 
 module.exports.userData = async (id, fields) => {
   try {
-    const data =
-      (await User.findById(id, fields)) ||
-      Alumni.findById(id, fields) ||
-      Faculty.findById(id, fields);
-
+    let data = await User.findById(id, fields);
+    if (!data) data = await Alumni.findById(id, fields);
+    if (!data) data = await Faculty.findById(id, fields);
     return data;
   } catch (error) {
     console.error("Error fetching user data:", error);

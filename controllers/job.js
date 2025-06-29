@@ -46,7 +46,6 @@ exports.createJob = async (req, res) => {
     });
     getAllReceiverIds(user?._id)
       .then((receivers) => {
-        console.log("ok");
 
         sendNotification({
           req,
